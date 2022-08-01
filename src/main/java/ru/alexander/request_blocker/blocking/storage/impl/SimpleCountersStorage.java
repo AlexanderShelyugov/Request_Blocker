@@ -8,10 +8,12 @@ import java.util.Map;
 
 class SimpleCountersStorage implements CountersStorage {
 
-    private final Map<String, Map<String, Integer>> storageMap;
+    private final int targetsCount;
+    private Map<String, Map<String, Integer>> storageMap;
 
     public SimpleCountersStorage(int targetsCount) {
-        storageMap = new HashMap<>(targetsCount);
+        this.targetsCount = targetsCount;
+        flashStorage();
     }
 
     @Override
@@ -28,10 +30,14 @@ class SimpleCountersStorage implements CountersStorage {
 
     @Override
     public void removeAllCounters() {
-        storageMap.clear();
+        flashStorage();
     }
 
     private Map<String, Integer> getCountersForExecution(String executionID) {
         return storageMap.computeIfAbsent(executionID, key -> new HashMap<>());
+    }
+
+    private void flashStorage() {
+        storageMap = new HashMap<>(targetsCount);
     }
 }
