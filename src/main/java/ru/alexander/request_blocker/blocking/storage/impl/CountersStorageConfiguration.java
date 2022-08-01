@@ -8,7 +8,7 @@ import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
 
 @Configuration
 class CountersStorageConfiguration {
-    @Value("${block_ip.requests.amount}")
+    @Value("${block_ip.requests.amount:10}")
     private int requestLimit;
 
     @Bean
