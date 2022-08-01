@@ -23,7 +23,6 @@ class BlankSampleController {
     }
 
     @GetMapping("/sample_ip_unprotected")
-    @LimitSameIP
     public ResponseEntity<String> ipUnprotectedEndpoint() {
         log.info("We had request from {}", ipProvider.getCurrentIPAddress());
         return ok("");
