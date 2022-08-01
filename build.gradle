@@ -6,7 +6,7 @@ plugins {
 
 group = 'ru.alexander'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
+sourceCompatibility = '11'
 
 configurations {
     compileOnly {
@@ -30,11 +30,13 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
     }
-    testImplementation 'org.testcontainers:junit-jupiter:1.17.3'
     testImplementation 'net.andreinc:mockneat:0.4.8'
+    testImplementation 'org.jeasy:easy-random-core:5.0.0'
 }
 
 tasks.named('test') {
