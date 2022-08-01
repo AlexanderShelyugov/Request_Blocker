@@ -8,6 +8,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import ru.alexander.request_blocker.blocking.storage.api.CommonCounterLogic;
 import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
 import ru.alexander.request_blocker.blocking.storage.api.TooManyRequestsByIPException;
 
@@ -18,11 +19,9 @@ import java.util.UUID;
 @Scope("prototype")
 @RequiredArgsConstructor
 public class IPBlockingAspect {
-    private static final int MAX_COUNTER = 3;
-
     private final String executionID = UUID.randomUUID().toString();
 
-    private final CountersStorage storage;
+    private final CommonCounterLogic storageLogic;
 
     @Pointcut("@annotation(ru.alexander.request_blocker.blocking.ip.api.IPBlocks)")
     public void checkForRequestsPerIP() {
@@ -30,13 +29,7 @@ public class IPBlockingAspect {
 
     @Around("checkForRequestsPerIP()")
     public Object verifyIPCount(ProceedingJoinPoint joinPoint) throws Throwable {
-        synchronized (storage) {
-            val counter = storage.getCounterOrZero(executionID);
-            if (MAX_COUNTER < counter) {
-                throw new TooManyRequestsByIPException();
-            }
-            storage.setCounter(executionID, counter + 1);
-        }
+        storageLogic.validateIPCount(executionID, "");
         return joinPoint.proceed();
     }
 }

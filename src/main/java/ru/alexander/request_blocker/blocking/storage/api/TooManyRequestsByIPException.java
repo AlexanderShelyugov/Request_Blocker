@@ -3,7 +3,7 @@ package ru.alexander.request_blocker.blocking.storage.api;
 /**
  * Exception thrown in case of too many requests from one IP address
  */
-public class TooManyRequestsByIPException extends RuntimeException {
+public class TooManyRequestsByIPException extends ExecutionBlockException {
     public TooManyRequestsByIPException() {
         super();
     }
