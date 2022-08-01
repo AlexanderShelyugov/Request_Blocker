@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-import ru.alexander.request_blocker.blocking.storage.api.TooManyRequestsByIPException;
+import ru.alexander.request_blocker.blocking.storage.api.exceptions.TooManyRequestsByIPException;
 
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 

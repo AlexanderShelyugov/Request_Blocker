@@ -5,7 +5,7 @@ import lombok.Synchronized;
 import lombok.val;
 import ru.alexander.request_blocker.blocking.storage.api.CommonCounterLogic;
 import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
-import ru.alexander.request_blocker.blocking.storage.api.TooManyRequestsByIPException;
+import ru.alexander.request_blocker.blocking.storage.api.exceptions.TooManyRequestsByIPException;
 
 @RequiredArgsConstructor
 class ThreadSafeCommonCounterLogic implements CommonCounterLogic {
