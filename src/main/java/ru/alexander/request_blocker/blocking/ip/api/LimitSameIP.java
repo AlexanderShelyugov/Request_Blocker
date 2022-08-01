@@ -7,7 +7,10 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Marks method to block execution if too many requests
+ * Marks method to block execution if too many requests.
+ * <p>
+ * If the method was called too many times from the same IP in the given period of time,
+ * method will throw {@code TooManyRequestsByIPException.class}.
  */
 @Target(METHOD)
 @Retention(RUNTIME)
