@@ -10,10 +10,13 @@ import ru.alexander.request_blocker.blocking.storage.api.CommonCounterLogic;
 @RequiredArgsConstructor
 @Slf4j
 class CounterStorageCleanupTask {
-    private static final long RATE = 10000;
+    private static final String CLEANUP_DELAY = "#{${block_ip.requests.time_window_seconds} * 1000 }";
     private final CommonCounterLogic counterLogic;
 
-    @Scheduled(fixedRate = RATE)
+    @Scheduled(
+        initialDelayString = CLEANUP_DELAY,
+        fixedRateString = CLEANUP_DELAY
+    )
     public void cleanupCounters() {
         counterLogic.clearStorage();
         log.info("Counters cleared");

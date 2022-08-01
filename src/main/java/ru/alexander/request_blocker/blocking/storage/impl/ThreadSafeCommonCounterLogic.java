@@ -9,14 +9,14 @@ import ru.alexander.request_blocker.blocking.storage.api.exceptions.TooManyReque
 
 @RequiredArgsConstructor
 class ThreadSafeCommonCounterLogic implements CommonCounterLogic {
-    private static final int MAX_COUNTER = 3;
     private final CountersStorage storage;
+    private final int requestsLimit;
 
     @Override
     @Synchronized
     public void validateIPCount(String executionID, String ip) {
         val counter = storage.getCounterOrZero(executionID, ip);
-        if (MAX_COUNTER <= counter) {
+        if (requestsLimit <= counter) {
             throw new TooManyRequestsByIPException();
         }
         storage.setCounter(executionID, ip, counter + 1);
