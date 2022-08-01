@@ -16,7 +16,7 @@ class ThreadSafeCommonCounterLogic implements CommonCounterLogic {
     @Synchronized
     public void validateIPCount(String executionID, String ip) {
         val counter = storage.getCounterOrZero(executionID, ip);
-        if (MAX_COUNTER < counter) {
+        if (MAX_COUNTER <= counter) {
             throw new TooManyRequestsByIPException();
         }
         storage.setCounter(executionID, ip, counter + 1);
