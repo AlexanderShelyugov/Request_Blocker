@@ -21,7 +21,7 @@ class IPBlockingAspect {
     private final CommonCounterLogic storageLogic;
     private final CurrentIPProvider ipProvider;
 
-    @Pointcut("@annotation(ru.alexander.request_blocker.blocking.ip.api.IPBlocks)")
+    @Pointcut("@annotation(ru.alexander.request_blocker.blocking.ip.api.LimitSameIP)")
     public void checkForRequestsPerIP() {
     }
 
