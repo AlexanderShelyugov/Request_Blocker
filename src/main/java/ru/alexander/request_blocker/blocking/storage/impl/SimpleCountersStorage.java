@@ -6,7 +6,7 @@ import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SimpleCountersStorage implements CountersStorage {
+class SimpleCountersStorage implements CountersStorage {
 
     private final Map<String, Map<String, Integer>> storageMap;
 
