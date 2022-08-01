@@ -25,6 +25,6 @@ class BlankSampleController {
     @GetMapping("/sample_ip_unprotected")
     public ResponseEntity<String> ipUnprotectedEndpoint() {
         log.info("We had request from {}", ipProvider.getCurrentIPAddress());
-        return ok("");
+        return ok().build();
     }
 }

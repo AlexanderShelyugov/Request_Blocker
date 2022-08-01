@@ -1,5 +1,6 @@
 package ru.alexander.request_blocker.blocking.ip.api;
 
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
