@@ -2,7 +2,7 @@ package ru.alexander.request_blocker.util;
 
 import net.andreinc.mockneat.MockNeat;
 
-public final class IpAddressUtils {
+public final class IpAddressHelper {
 
     private static final MockNeat GENERATOR = MockNeat.threadLocal();
 
@@ -20,6 +20,6 @@ public final class IpAddressUtils {
         return GENERATOR.iPv6s().val();
     }
 
-    private IpAddressUtils() {
+    private IpAddressHelper() {
     }
 }

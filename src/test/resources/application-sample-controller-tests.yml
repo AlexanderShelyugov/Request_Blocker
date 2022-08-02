@@ -1,0 +1,4 @@
+block_ip:
+  requests:
+    amount: 500
+    time_window_seconds: 60

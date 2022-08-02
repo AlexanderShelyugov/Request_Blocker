@@ -1,29 +1,57 @@
 package ru.alexander.request_blocker.controller;
 
+import lombok.val;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.alexander.request_blocker.blocking.ip.api.CurrentIPProvider;
+import ru.alexander.request_blocker.util.IpAddressHelper;
 
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+
+import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Stream.generate;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static ru.alexander.request_blocker.util.IpAddressUtils.randomIPAddress;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.MOCK;
+import static ru.alexander.request_blocker.util.HttpRequestsHelper.runHTTPRequests;
+import static ru.alexander.request_blocker.util.IpAddressHelper.randomIPAddress;
 
-@WebMvcTest(BlankSampleController.class)
+@SpringBootTest(
+    webEnvironment = MOCK
+)
+@ActiveProfiles("sample-controller-tests")
+@AutoConfigureMockMvc
 class BlankSampleControllerTest {
-    private static final String URI = "/sample";
+    private static final String URI = "/sample_ip_protected";
+    private static final int REQUESTS_AT_ONCE = 100;
+    private static final int TOTAL_REQUESTS = REQUESTS_AT_ONCE * 20;
+    private static final int TIME_LIMIT = 60;
+
+    @Value("${block_ip.requests.amount}")
+    private int expectedSuccesses;
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
-    private CurrentIPProvider ipProvider;
+    private ExecutorService pool;
+
+    @BeforeEach
+    void setUp() {
+        pool = newFixedThreadPool(REQUESTS_AT_ONCE);
+    }
 
     @Test
     @DisplayName("Context loads successfully!")
@@ -32,15 +60,40 @@ class BlankSampleControllerTest {
     }
 
     @Test
-    @DisplayName("We call method from the same IP address and get error")
+    @DisplayName("Same IP requests fail after limit")
+    @Timeout(value = TIME_LIMIT / 2)
     void callWithSameIP() throws Exception {
-        mockMvc.perform(
-            get(URI)
-                .with(request -> {
-                    request.setRemoteAddr(randomIPAddress());
-                    return request;
-                })
-                .accept(APPLICATION_JSON)
-        );
+        val tasks = sameIpTasks(TOTAL_REQUESTS);
+        // Execute requests
+        val results = runHTTPRequests(pool, tasks);
+        assertEquals(expectedSuccesses, results.getSuccessful());
+        assertEquals(TOTAL_REQUESTS - expectedSuccesses, results.getFailed());
     }
+
+    @Test
+    @DisplayName("Unique IP requests work fine")
+    @Timeout(value = TIME_LIMIT / 2)
+    void callWithUniqueIPs() throws Exception {
+        val tasks = uniqueIpTasks(TOTAL_REQUESTS);
+        // Execute requests
+        val results = runHTTPRequests(pool, tasks);
+        assertEquals(TOTAL_REQUESTS, results.getSuccessful());
+        assertEquals(0, results.getFailed());
+    }
+
+    public List<Callable<HttpServletResponse>> sameIpTasks(int n) {
+        val ip = randomIPAddress();
+        return generate(() -> new RandomIPRequestTask(mockMvc, URI, ip))
+            .limit(n)
+            .collect(toList());
+    }
+
+    public List<Callable<HttpServletResponse>> uniqueIpTasks(int n) {
+        return generate(IpAddressHelper::randomIPAddress)
+            .distinct()
+            .limit(n)
+            .map(ip -> new RandomIPRequestTask(mockMvc, URI, ip))
+            .collect(toList());
+    }
+
 }

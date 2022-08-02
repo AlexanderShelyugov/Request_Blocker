@@ -3,6 +3,7 @@ package ru.alexander.request_blocker.blocking.storage.impl;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import ru.alexander.request_blocker.blocking.ip.api.exceptions.ExecutionBlockException;
 import ru.alexander.request_blocker.blocking.ip.api.exceptions.TooManyRequestsByIPException;
@@ -14,6 +15,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.function.Predicate.not;
 
 @RequiredArgsConstructor
+@Slf4j
 class ThreadSafeCommonCounterLogic implements CommonCounterLogic {
     private final CountersStorage storage;
     private final int requestsLimit;
@@ -25,6 +27,7 @@ class ThreadSafeCommonCounterLogic implements CommonCounterLogic {
             throw new UnableToGetIPException("Unable to retrieve IP address. Exit execution.");
         }
         val counter = storage.getCounterOrZero(executionID, ip);
+        log.debug("IP: {}, count: {}", ip, counter);
         if (requestsLimit <= counter) {
             throw new TooManyRequestsByIPException();
         }

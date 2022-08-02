@@ -5,8 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
-import ru.alexander.request_blocker.util.IpAddressUtils;
-import ru.alexander.request_blocker.util.RandomUtils;
+import ru.alexander.request_blocker.util.IpAddressHelper;
+import ru.alexander.request_blocker.util.RandomHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,10 +19,10 @@ import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Collectors.toUnmodifiableMap;
 import static java.util.stream.Stream.generate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static ru.alexander.request_blocker.util.IpAddressUtils.randomIPv4Address;
-import static ru.alexander.request_blocker.util.IpAddressUtils.randomIPv6Address;
-import static ru.alexander.request_blocker.util.RandomUtils.RANDOM;
-import static ru.alexander.request_blocker.util.RandomUtils.randomString;
+import static ru.alexander.request_blocker.util.IpAddressHelper.randomIPv4Address;
+import static ru.alexander.request_blocker.util.IpAddressHelper.randomIPv6Address;
+import static ru.alexander.request_blocker.util.RandomHelper.RANDOM;
+import static ru.alexander.request_blocker.util.RandomHelper.randomString;
 
 class SimpleCountersStorageTest {
     private CountersStorage storage;
@@ -74,13 +74,13 @@ class SimpleCountersStorageTest {
         val ipsCount = RANDOM.nextInt(10);
         // Easy way to generate N random distinct IP addresses
         final Function<Integer, Set<String>> ipsGenerator = (count) ->
-            generate(IpAddressUtils::randomIPAddress)
+            generate(IpAddressHelper::randomIPAddress)
                 .distinct()
                 .limit(ipsCount)
                 .collect(toSet());
 
         // Init cases.
-        val cases = generate(RandomUtils::randomString)
+        val cases = generate(RandomHelper::randomString)
             .limit(executionsCount)
             .collect(toUnmodifiableMap(
                 identity(),
