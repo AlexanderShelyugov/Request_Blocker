@@ -8,6 +8,7 @@ import ru.alexander.request_blocker.service.api.SomeProtectedService;
 @Service
 @Slf4j
 class SomeProtectedServiceImpl implements SomeProtectedService {
+    // Method annotations are not inherited, therefore we add it on implementation.
     @Override
     @LimitSameIP
     public void someProtectedMethod() {

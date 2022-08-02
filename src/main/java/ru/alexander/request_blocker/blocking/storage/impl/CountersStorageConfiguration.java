@@ -7,13 +7,13 @@ import ru.alexander.request_blocker.blocking.storage.api.CommonCounterLogic;
 import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
 
 @Configuration
-class CountersStorageConfiguration {
+public class CountersStorageConfiguration {
     @Value("${block_ip.requests.amount:10}")
     private int requestLimit;
 
     @Bean
     public CountersStorage createCountersStorage() {
-        return new SimpleCountersStorage(100);
+        return new SimpleCountersStorage();
     }
 
     @Bean

@@ -3,10 +3,8 @@ package ru.alexander.request_blocker.blocking.storage.cleanup;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 import ru.alexander.request_blocker.blocking.storage.api.CommonCounterLogic;
 
-@Component
 @RequiredArgsConstructor
 @Slf4j
 class CounterStorageCleanupTask {

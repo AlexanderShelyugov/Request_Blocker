@@ -1,6 +1,6 @@
-package ru.alexander.request_blocker.blocking.storage.api.exceptions;
+package ru.alexander.request_blocker.blocking.ip.api.exceptions;
 
-public class ExecutionBlockException extends RuntimeException {
+public class ExecutionBlockException extends Exception {
     public ExecutionBlockException() {
         super();
     }

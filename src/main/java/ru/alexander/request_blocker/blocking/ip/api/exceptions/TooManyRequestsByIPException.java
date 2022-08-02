@@ -1,4 +1,4 @@
-package ru.alexander.request_blocker.blocking.storage.api.exceptions;
+package ru.alexander.request_blocker.blocking.ip.api.exceptions;
 
 /**
  * Exception thrown in case of too many requests from one IP address

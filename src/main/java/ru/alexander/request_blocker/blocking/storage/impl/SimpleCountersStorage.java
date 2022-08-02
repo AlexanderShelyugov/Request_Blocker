@@ -7,12 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 class SimpleCountersStorage implements CountersStorage {
-
-    private final int targetsCount;
     private Map<String, Map<String, Integer>> storageMap;
 
-    public SimpleCountersStorage(int targetsCount) {
-        this.targetsCount = targetsCount;
+    public SimpleCountersStorage() {
         flashStorage();
     }
 
@@ -38,6 +35,6 @@ class SimpleCountersStorage implements CountersStorage {
     }
 
     private void flashStorage() {
-        storageMap = new HashMap<>(targetsCount);
+        storageMap = new HashMap<>();
     }
 }

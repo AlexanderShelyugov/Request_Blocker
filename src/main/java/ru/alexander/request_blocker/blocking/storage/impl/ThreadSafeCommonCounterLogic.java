@@ -1,11 +1,17 @@
 package ru.alexander.request_blocker.blocking.storage.impl;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
 import lombok.val;
+import ru.alexander.request_blocker.blocking.ip.api.exceptions.ExecutionBlockException;
+import ru.alexander.request_blocker.blocking.ip.api.exceptions.TooManyRequestsByIPException;
+import ru.alexander.request_blocker.blocking.ip.api.exceptions.UnableToGetIPException;
 import ru.alexander.request_blocker.blocking.storage.api.CommonCounterLogic;
 import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
-import ru.alexander.request_blocker.blocking.storage.api.exceptions.TooManyRequestsByIPException;
+
+import static java.util.Optional.ofNullable;
+import static java.util.function.Predicate.not;
 
 @RequiredArgsConstructor
 class ThreadSafeCommonCounterLogic implements CommonCounterLogic {
@@ -14,7 +20,10 @@ class ThreadSafeCommonCounterLogic implements CommonCounterLogic {
 
     @Override
     @Synchronized
-    public void validateIPCount(String executionID, String ip) {
+    public void validateIPCount(@NonNull String executionID, String ip) throws ExecutionBlockException {
+        if (ofNullable(ip).filter(not(String::isBlank)).isEmpty()) {
+            throw new UnableToGetIPException("Unable to retrieve IP address. Exit execution.");
+        }
         val counter = storage.getCounterOrZero(executionID, ip);
         if (requestsLimit <= counter) {
             throw new TooManyRequestsByIPException();

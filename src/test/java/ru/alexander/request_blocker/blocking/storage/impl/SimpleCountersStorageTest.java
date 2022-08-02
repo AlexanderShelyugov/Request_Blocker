@@ -25,14 +25,11 @@ import static ru.alexander.request_blocker.util.RandomUtils.RANDOM;
 import static ru.alexander.request_blocker.util.RandomUtils.randomString;
 
 class SimpleCountersStorageTest {
-    private static final int MAX_CAPACITY = 100;
-
     private CountersStorage storage;
 
     @BeforeEach
     void setUp() {
-        val capacity = RANDOM.nextInt(MAX_CAPACITY);
-        storage = new SimpleCountersStorage(capacity);
+        storage = new SimpleCountersStorage();
     }
 
     @Test
