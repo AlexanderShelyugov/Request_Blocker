@@ -1,9 +1,9 @@
 package ru.alexander.request_blocker.blocking.ip.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import ru.alexander.request_blocker.blocking.ip.api.CurrentIPProvider;
 import ru.alexander.request_blocker.blocking.storage.api.CommonCounterLogic;
@@ -19,9 +19,8 @@ class IPBlockingAspect {
     public void checkForRequestsPerIP() {
     }
 
-    @Around("checkForRequestsPerIP()")
-    public Object verifyIPCount(ProceedingJoinPoint joinPoint) throws Throwable {
+    @Before("checkForRequestsPerIP()")
+    public void verifyIPCount(JoinPoint joinPoint) throws Throwable {
         storageLogic.validateIPCount(executionID, ipProvider.getCurrentIPAddress());
-        return joinPoint.proceed();
     }
 }
