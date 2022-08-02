@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Configuration
 public class IPBlockingConfiguration {
-    private static AtomicInteger executions = new AtomicInteger();
+    private static final AtomicInteger EXECUTIONS = new AtomicInteger();
 
     @Bean
     @Scope("prototype")
@@ -19,7 +19,7 @@ public class IPBlockingConfiguration {
         CurrentIPProvider ipProvider
     ) {
         return new IPBlockingAspect(
-            executions.incrementAndGet(),
+            EXECUTIONS.incrementAndGet(),
             storageLogic,
             ipProvider
         );
