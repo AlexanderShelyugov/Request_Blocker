@@ -1,6 +1,5 @@
 package ru.alexander.request_blocker.blocking.storage.impl;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,7 @@ class ThreadSafeCommonCounterLogic implements CommonCounterLogic {
 
     @Override
     @Synchronized
-    public void validateIPCount(@NonNull String executionID, String ip) throws ExecutionBlockException {
+    public void validateIPCount(int executionID, String ip) throws ExecutionBlockException {
         if (ofNullable(ip).filter(not(String::isBlank)).isEmpty()) {
             throw new UnableToGetIPException("Unable to retrieve IP address. Exit execution.");
         }

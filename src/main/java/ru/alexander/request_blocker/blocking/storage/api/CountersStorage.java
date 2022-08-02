@@ -10,7 +10,7 @@ public interface CountersStorage {
      * @param executionID execution ID
      * @return counter value
      */
-    int getCounterOrZero(String executionID, String ip);
+    int getCounterOrZero(int executionID, String ip);
 
     /**
      * Sets new counter value for a given execution.
@@ -18,7 +18,7 @@ public interface CountersStorage {
      * @param executionID execution ID
      * @param newValue    new counter value
      */
-    void setCounter(String executionID, String ip, int newValue);
+    void setCounter(int executionID, String ip, int newValue);
 
     /**
      * Removes all counters from storage.

@@ -7,20 +7,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 class SimpleCountersStorage implements CountersStorage {
-    private Map<String, Map<String, Integer>> storageMap;
+    private Map<Integer, Map<String, Integer>> storageMap;
 
     public SimpleCountersStorage() {
         flashStorage();
     }
 
     @Override
-    public int getCounterOrZero(String executionID, String ip) {
+    public int getCounterOrZero(int executionID, String ip) {
         val ipCounters = getCountersForExecution(executionID);
         return ipCounters.computeIfAbsent(ip, key -> 0);
     }
 
     @Override
-    public void setCounter(String executionID, String ip, int newValue) {
+    public void setCounter(int executionID, String ip, int newValue) {
         val ipCounters = getCountersForExecution(executionID);
         ipCounters.put(ip, newValue);
     }
@@ -30,7 +30,7 @@ class SimpleCountersStorage implements CountersStorage {
         flashStorage();
     }
 
-    private Map<String, Integer> getCountersForExecution(String executionID) {
+    private Map<String, Integer> getCountersForExecution(int executionID) {
         return storageMap.computeIfAbsent(executionID, key -> new HashMap<>());
     }
 

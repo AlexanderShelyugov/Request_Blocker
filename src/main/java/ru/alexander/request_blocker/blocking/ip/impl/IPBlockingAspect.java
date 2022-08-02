@@ -14,10 +14,10 @@ import java.util.UUID;
 
 @Aspect("pertarget(ru.alexander.request_blocker.blocking.ip.impl.IPBlockingAspect.checkForRequestsPerIP())")
 @Component
-@Scope("prototype")
+
 @RequiredArgsConstructor
 class IPBlockingAspect {
-    private final String executionID = UUID.randomUUID().toString();
+    private final int executionID;
     private final CommonCounterLogic storageLogic;
     private final CurrentIPProvider ipProvider;
 

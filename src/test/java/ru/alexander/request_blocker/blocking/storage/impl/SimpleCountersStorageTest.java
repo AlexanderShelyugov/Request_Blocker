@@ -6,7 +6,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
 import ru.alexander.request_blocker.util.IpAddressHelper;
-import ru.alexander.request_blocker.util.RandomHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static ru.alexander.request_blocker.util.IpAddressHelper.randomIPv4Address;
 import static ru.alexander.request_blocker.util.IpAddressHelper.randomIPv6Address;
 import static ru.alexander.request_blocker.util.RandomHelper.RANDOM;
-import static ru.alexander.request_blocker.util.RandomHelper.randomString;
 
 class SimpleCountersStorageTest {
     private CountersStorage storage;
@@ -35,10 +33,10 @@ class SimpleCountersStorageTest {
     @Test
     @DisplayName("Retrieval of new parameters works correctly")
     void getCounterOrZero() {
-        val cases = new HashMap<String, String>() {{
+        val cases = new HashMap<Integer, String>() {{
             // ExecutionID <-> IP address
-            put(randomString(), randomIPv4Address());
-            put(randomString(), randomIPv6Address());
+            put(RANDOM.nextInt(), randomIPv4Address());
+            put(RANDOM.nextInt(), randomIPv6Address());
         }};
 
         // For all cases initial counter retrieval returns zero.
@@ -51,10 +49,10 @@ class SimpleCountersStorageTest {
     @Test
     @DisplayName("Setting counters works")
     void setCounter() {
-        val cases = new HashMap<String, String>() {{
+        val cases = new HashMap<Integer, String>() {{
             // ExecutionID <-> IP address
-            put(randomString(), randomIPv4Address());
-            put(randomString(), randomIPv6Address());
+            put(RANDOM.nextInt(), randomIPv4Address());
+            put(RANDOM.nextInt(), randomIPv6Address());
         }};
 
         // For all cases after setting counter we receive the same value.
@@ -80,7 +78,7 @@ class SimpleCountersStorageTest {
                 .collect(toSet());
 
         // Init cases.
-        val cases = generate(RandomHelper::randomString)
+        val cases = generate(RANDOM::nextInt)
             .limit(executionsCount)
             .collect(toUnmodifiableMap(
                 identity(),
@@ -107,14 +105,14 @@ class SimpleCountersStorageTest {
     }
 
     private void iterateOverStorage(
-        Map<String, Set<String>> cases,
-        BiConsumer<String, String> consumer
+        Map<Integer, Set<String>> cases,
+        BiConsumer<Integer, String> consumer
     ) {
         cases.entrySet().stream()
             .flatMap(
                 (entry) -> entry.getValue().stream()
-                    .map((ip) -> new String[]{entry.getKey(), ip})
+                    .map((ip) -> new Object[]{entry.getKey(), ip})
             )
-            .forEach((entry) -> consumer.accept(entry[0], entry[1]));
+            .forEach((entry) -> consumer.accept((Integer) entry[0], (String) entry[1]));
     }
 }
