@@ -1,4 +1,4 @@
-package ru.alexander.request_blocker.blocking.storage.impl;
+package ru.alexander.request_blocker.blocking.storage.simple;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
@@ -15,7 +15,7 @@ import static java.util.function.Predicate.not;
 
 @RequiredArgsConstructor
 @Slf4j
-class ThreadSafeCommonCounterLogic implements CommonCounterLogic {
+class ThreadSafeSimpleCounterLogic implements CommonCounterLogic {
     private final CountersStorage storage;
     private final int requestsLimit;
 

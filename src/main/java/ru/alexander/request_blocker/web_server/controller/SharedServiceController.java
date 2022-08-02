@@ -1,10 +1,10 @@
-package ru.alexander.request_blocker.controller;
+package ru.alexander.request_blocker.web_server.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.alexander.request_blocker.service.api.SomeProtectedService;
+import ru.alexander.request_blocker.web_server.service.api.SomeProtectedService;
 
 import static org.springframework.http.ResponseEntity.ok;
 

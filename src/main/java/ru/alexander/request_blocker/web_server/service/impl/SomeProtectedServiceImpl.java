@@ -1,9 +1,9 @@
-package ru.alexander.request_blocker.service.impl;
+package ru.alexander.request_blocker.web_server.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.alexander.request_blocker.blocking.ip.api.LimitSameIP;
-import ru.alexander.request_blocker.service.api.SomeProtectedService;
+import ru.alexander.request_blocker.web_server.service.api.SomeProtectedService;
 
 @Service
 @Slf4j

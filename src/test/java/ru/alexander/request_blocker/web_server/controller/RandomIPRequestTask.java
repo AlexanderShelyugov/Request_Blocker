@@ -1,4 +1,4 @@
-package ru.alexander.request_blocker.controller;
+package ru.alexander.request_blocker.web_server.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.test.web.servlet.MockMvc;

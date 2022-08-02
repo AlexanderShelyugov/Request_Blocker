@@ -1,4 +1,4 @@
-package ru.alexander.request_blocker.controller;
+package ru.alexander.request_blocker.web_server.controller;
 
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;

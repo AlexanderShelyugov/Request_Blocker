@@ -1,4 +1,4 @@
-package ru.alexander.request_blocker.blocking.storage.impl;
+package ru.alexander.request_blocker.blocking.storage.simple;
 
 import lombok.val;
 import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;

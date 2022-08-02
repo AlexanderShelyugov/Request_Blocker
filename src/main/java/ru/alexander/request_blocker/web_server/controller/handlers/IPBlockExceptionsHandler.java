@@ -1,4 +1,4 @@
-package ru.alexander.request_blocker.controller.handlers;
+package ru.alexander.request_blocker.web_server.controller.handlers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
