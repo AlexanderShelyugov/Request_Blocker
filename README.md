@@ -19,9 +19,9 @@ Blocks incoming requests from the same IP address, if there are too many of them
 
 ### Explanation
 
-Since we have a hypothetical high-load application we need to tune counters' read AND write operations.
+💭 Since we have a hypothetical high-load application we need to tune counters' read AND write operations.
 
-Since reads and writes are 1-1 we should focus on writes.
+Since reads and writes are 1-1 for counters, we should focus on writes.
 
 The best known way to optimize write operations is **sharding**.
 
