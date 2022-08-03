@@ -4,10 +4,10 @@ import lombok.val;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static java.lang.Math.min;
 import static java.util.Collections.unmodifiableMap;
+import static java.util.Optional.of;
 
 public class IPv4ShardingStrategy implements ShardingStrategy {
     private static final int IPV4_DEFAULT_SHARDS_COUNT = 100;
@@ -34,10 +34,7 @@ public class IPv4ShardingStrategy implements ShardingStrategy {
         // and calculating their position on overall spectrum [0.0 - 255.255].
         // After we know position, we look which region this position fits to.
         // When we've figured the range, we know the shard's name!
-        val ipToken = Optional.of(ipv4.split(SEPARATOR_REGEXP))
-            .map(ip -> new Integer[]{Integer.parseInt(ip[0]), Integer.parseInt(ip[1])})
-            .map(ipParts -> ipParts[0] * VALUES_PER_BLOCK + ipParts[1])
-            .orElseThrow(IllegalStateException::new);
+        val ipToken = ipToSpectrumPosition(ipv4);
         val ipRangeName = shardRanges.entrySet().stream()
             .filter(range -> ipToken <= range.getValue())
             .map(Map.Entry::getKey)
@@ -59,5 +56,19 @@ public class IPv4ShardingStrategy implements ShardingStrategy {
         } while (MAX_ITEMS_COUNT != ipStep);
 
         return unmodifiableMap(result);
+    }
+
+    private static long ipToSpectrumPosition(String ip) {
+        val firstSeparator = ip.indexOf(SEPARATOR_REGEXP);
+        val secondSeparator = ip.indexOf(SEPARATOR_REGEXP, firstSeparator);
+        return blockToLong(ip.substring(0, firstSeparator)) * VALUES_PER_BLOCK
+            + blockToLong(ip.substring(firstSeparator + 1, secondSeparator));
+    }
+
+    private static long blockToLong(String block) {
+        return of(block)
+            .map(String::trim)
+            .map(b -> Long.parseLong(b, 16))
+            .orElse(0L);
     }
 }

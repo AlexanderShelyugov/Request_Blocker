@@ -55,9 +55,14 @@ public class ShardStorageLock implements StorageLockAccess, StorageLockHandle {
     public void lockAccess(int executionID, String ip) {
         synchronized (storageShardLock) {
             registerStorageUsage();
-            val shardName = shardingStrategy.getShardName(executionID, ip);
-            val shardLock = shardLocks.computeIfAbsent(shardName, name -> new ReentrantLock());
-            shardLock.lock();
+            try {
+                val shardName = shardingStrategy.getShardName(executionID, ip);
+                val shardLock = shardLocks.computeIfAbsent(shardName, name -> new ReentrantLock());
+                shardLock.lock();
+            } catch (Throwable e) {
+                unregisterStorageUsage();
+                throw e;
+            }
         }
     }
 

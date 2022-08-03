@@ -4,10 +4,10 @@ import lombok.val;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static java.lang.Long.min;
 import static java.util.Collections.unmodifiableMap;
+import static java.util.Optional.of;
 
 public class IPv6ShardingStrategy implements ShardingStrategy {
     private static final long IPV6_DEFAULT_SHARDS_COUNT = 1000;
@@ -41,10 +41,7 @@ public class IPv6ShardingStrategy implements ShardingStrategy {
         // After we know position, we look which region this position fits to.
         // When we've figured the range, we know the shard's name!
 
-        val ipToken = Optional.of(ipv6.split(SEPARATOR_REGEXP))
-            .map(ip -> new Long[]{Long.parseLong(ip[0]), Long.parseLong(ip[1])})
-            .map(ipParts -> ipParts[0] * VALUES_PER_BLOCK + ipParts[1])
-            .orElseThrow(IllegalStateException::new);
+        val ipToken = ipToSpectrumPosition(ipv6);
         val rangeName = shardRanges.entrySet().stream()
             .filter(range -> ipToken <= range.getValue())
             .map(Map.Entry::getKey)
@@ -66,6 +63,20 @@ public class IPv6ShardingStrategy implements ShardingStrategy {
         } while (MAX_ITEMS_COUNT != ipStep);
 
         return unmodifiableMap(result);
+    }
+
+    private static long ipToSpectrumPosition(String ip) {
+        val firstSeparator = ip.indexOf(SEPARATOR_REGEXP);
+        val secondSeparator = ip.indexOf(SEPARATOR_REGEXP, firstSeparator);
+        return blockToLong(ip.substring(0, firstSeparator)) * VALUES_PER_BLOCK
+            + blockToLong(ip.substring(firstSeparator + 1, secondSeparator));
+    }
+
+    private static long blockToLong(String block) {
+        return of(block)
+            .map(String::trim)
+            .map(b -> Long.parseLong(b, 16))
+            .orElse(0L);
     }
 
 }
