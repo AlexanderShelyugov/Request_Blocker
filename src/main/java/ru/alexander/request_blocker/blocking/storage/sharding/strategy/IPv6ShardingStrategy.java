@@ -42,6 +42,8 @@ public class IPv6ShardingStrategy implements ShardingStrategy {
 
     public IPv6ShardingStrategy(long shardsCount) {
         shardsCount = min(shardsCount, Integer.MAX_VALUE);
+        if (shardsCount < 0) throw new IllegalArgumentException("Can't have a negative shard count");
+        if (shardsCount == 0) shardsCount = IPV6_DEFAULT_SHARDS_COUNT;
         shardRanges = createIPv6ShardRanges((int) shardsCount);
     }
 

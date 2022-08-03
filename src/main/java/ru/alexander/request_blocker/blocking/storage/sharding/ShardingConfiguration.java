@@ -1,5 +1,6 @@
 package ru.alexander.request_blocker.blocking.storage.sharding;
 
+import lombok.val;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,11 +17,20 @@ public class ShardingConfiguration {
     @Value("${block_ip.requests.limit:10}")
     private int requestLimit;
 
+    @Value("${block_ip.shards.ipv4:0}")
+    private int ipv4ShardsCount;
+
+    @Value("${block_ip.shards.ipv6:0}")
+    private int ipv6ShardsCount;
+
     @Bean
     public ShardingStrategy getIPShardingStrategy() {
+        val ipv4Strategy = new IPv4ShardingStrategy(ipv4ShardsCount);
+        val ipv6Strategy = new IPv6ShardingStrategy(ipv6ShardsCount);
+
         return IPTypesShardingStrategy.builder()
-            .ipv4ShardingStrategy(new IPv4ShardingStrategy())
-            .ipv6ShardingStrategy(new IPv6ShardingStrategy())
+            .ipv4ShardingStrategy(ipv4Strategy)
+            .ipv6ShardingStrategy(ipv6Strategy)
             .build();
     }
 

@@ -34,7 +34,8 @@ public class IPv4ShardingStrategy implements ShardingStrategy {
     }
 
     public IPv4ShardingStrategy(int shardsCount) {
-        if (shardsCount <= 0) throw new IllegalArgumentException("Can't have non-positive shard count");
+        if (shardsCount < 0) throw new IllegalArgumentException("Can't have a negative shard count");
+        if (shardsCount == 0) shardsCount = IPV4_DEFAULT_SHARDS_COUNT;
         shardRanges = createIPv4ShardRanges(shardsCount);
     }
 
