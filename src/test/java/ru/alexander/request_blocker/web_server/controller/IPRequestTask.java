@@ -9,10 +9,9 @@ import java.util.concurrent.Callable;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @RequiredArgsConstructor
-class RandomIPRequestTask implements Callable<HttpServletResponse> {
+class IPRequestTask implements Callable<HttpServletResponse> {
     private final MockMvc mockMvc;
     private final String url;
-
     private final String ip;
 
     @Override

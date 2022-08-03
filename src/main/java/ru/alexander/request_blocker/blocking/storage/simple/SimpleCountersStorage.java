@@ -1,40 +1,31 @@
 package ru.alexander.request_blocker.blocking.storage.simple;
 
 import lombok.val;
-import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
+import ru.alexander.request_blocker.blocking.storage.sharding.AbstractShardingCounterStorage;
+import ru.alexander.request_blocker.blocking.storage.sharding.ShardingStrategy;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
-class SimpleCountersStorage implements CountersStorage {
-    private Map<Integer, Map<String, Integer>> storageMap;
+class SimpleCountersStorage extends AbstractShardingCounterStorage {
+    private final Map<Integer, Map<String, Map<String, Integer>>> storageMap = new HashMap<>();
 
-    public SimpleCountersStorage() {
-        flashStorage();
+    public SimpleCountersStorage(ShardingStrategy shardingStrategy) {
+        super(shardingStrategy);
     }
 
     @Override
-    public int getCounterOrZero(int executionID, String ip) {
-        val ipCounters = getCountersForExecution(executionID);
-        return ipCounters.computeIfAbsent(ip, key -> 0);
-    }
-
-    @Override
-    public void setCounter(int executionID, String ip, int newValue) {
-        val ipCounters = getCountersForExecution(executionID);
-        ipCounters.put(ip, newValue);
+    protected Map<String, Integer> getRelatedShard(int executionID, String ip) {
+        val countersForExecution = storageMap.computeIfAbsent(executionID, id -> new HashMap<>());
+        val shardName = getShardingStrategy().getShardName(executionID, ip);
+        return countersForExecution.computeIfAbsent(shardName, shard -> new HashMap<>());
     }
 
     @Override
     public void removeAllCounters() {
-        flashStorage();
-    }
-
-    private Map<String, Integer> getCountersForExecution(int executionID) {
-        return storageMap.computeIfAbsent(executionID, key -> new HashMap<>());
-    }
-
-    private void flashStorage() {
-        storageMap = new HashMap<>();
+        // No need to drop already aligned hash table for executions
+        val executions = new HashSet<>(storageMap.keySet());
+        executions.forEach(execution -> storageMap.put(execution, new HashMap<>()));
     }
 }

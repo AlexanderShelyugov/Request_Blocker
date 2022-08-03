@@ -2,28 +2,25 @@ package ru.alexander.request_blocker.blocking.storage.hazelcast;
 
 import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.HazelcastInstance;
-import lombok.RequiredArgsConstructor;
 import lombok.val;
-import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
+import ru.alexander.request_blocker.blocking.storage.sharding.AbstractShardingCounterStorage;
 import ru.alexander.request_blocker.blocking.storage.sharding.ShardingStrategy;
 
 import java.util.Map;
 
-@RequiredArgsConstructor
-class HazelcastCountersStorage implements CountersStorage {
+class HazelcastCountersStorage extends AbstractShardingCounterStorage {
     private final HazelcastInstance hazelcast;
-    private final ShardingStrategy shardingStrategy;
 
-    @Override
-    public int getCounterOrZero(int executionID, String ip) {
-        val ipCounters = getRelatedShard(executionID, ip);
-        return ipCounters.computeIfAbsent(ip, key -> 0);
+    public HazelcastCountersStorage(ShardingStrategy shardingStrategy,
+                                    HazelcastInstance hazelcast) {
+        super(shardingStrategy);
+        this.hazelcast = hazelcast;
     }
 
     @Override
-    public void setCounter(int executionID, String ip, int newValue) {
-        val ipCounters = getRelatedShard(executionID, ip);
-        ipCounters.put(ip, newValue);
+    protected Map<String, Integer> getRelatedShard(int executionID, String ip) {
+        val shardName = getShardingStrategy().getShardName(executionID, ip);
+        return hazelcast.getMap(shardName);
     }
 
     @Override
@@ -31,10 +28,4 @@ class HazelcastCountersStorage implements CountersStorage {
         hazelcast.getDistributedObjects()
             .forEach(DistributedObject::destroy);
     }
-
-    private Map<String, Integer> getRelatedShard(int executionID, String ip) {
-        val shardName = shardingStrategy.getShardName(executionID, ip);
-        return hazelcast.getMap(shardName);
-    }
-
 }

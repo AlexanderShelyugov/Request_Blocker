@@ -42,7 +42,7 @@ class BlankSampleControllerTest {
     private static final String URI = "/sample_ip_protected";
     private static final int REQUESTS_AT_ONCE = 100;
     private static final int TOTAL_REQUESTS = REQUESTS_AT_ONCE * 20;
-    private static final int TIME_LIMIT = 60;
+    private static final int TIME_LIMIT_SECONDS = 30;
 
     @Value("${block_ip.requests.amount}")
     private int expectedSuccesses;
@@ -65,7 +65,7 @@ class BlankSampleControllerTest {
 
     @Test
     @DisplayName("Same IP v4 requests fail after limit")
-    @Timeout(value = TIME_LIMIT / 2)
+    @Timeout(value = TIME_LIMIT_SECONDS)
     void callWithSameIPv4() throws Exception {
         val tasks = sameIpv4Tasks(TOTAL_REQUESTS);
         // Execute requests
@@ -76,7 +76,7 @@ class BlankSampleControllerTest {
 
     @Test
     @DisplayName("Same IP v6 requests fail after limit")
-    @Timeout(value = TIME_LIMIT / 2)
+    @Timeout(value = TIME_LIMIT_SECONDS)
     void callWithSameIPv6() throws Exception {
         val tasks = sameIpv6Tasks(TOTAL_REQUESTS);
         // Execute requests
@@ -85,10 +85,9 @@ class BlankSampleControllerTest {
         assertEquals(TOTAL_REQUESTS - expectedSuccesses, results.getFailed());
     }
 
-
     @Test
     @DisplayName("Unique IP requests work fine")
-    @Timeout(value = TIME_LIMIT / 2)
+    @Timeout(value = TIME_LIMIT_SECONDS - 1)
     void callWithUniqueIPs() throws Exception {
         val tasks = uniqueIpTasks(TOTAL_REQUESTS);
         // Execute requests
@@ -99,14 +98,14 @@ class BlankSampleControllerTest {
 
     public List<Callable<HttpServletResponse>> sameIpv4Tasks(int n) {
         val ip = randomIPv4Address();
-        return generate(() -> new RandomIPRequestTask(mockMvc, URI, ip))
+        return generate(() -> new IPRequestTask(mockMvc, URI, ip))
             .limit(n)
             .collect(toList());
     }
 
     public List<Callable<HttpServletResponse>> sameIpv6Tasks(int n) {
         val ip = randomIPv6Address();
-        return generate(() -> new RandomIPRequestTask(mockMvc, URI, ip))
+        return generate(() -> new IPRequestTask(mockMvc, URI, ip))
             .limit(n)
             .collect(toList());
     }
@@ -116,7 +115,7 @@ class BlankSampleControllerTest {
         return generate(IpAddressHelper::randomIPAddress)
             .distinct()
             .limit(n)
-            .map(ip -> new RandomIPRequestTask(mockMvc, URI, ip))
+            .map(ip -> new IPRequestTask(mockMvc, URI, ip))
             .collect(toList());
     }
 

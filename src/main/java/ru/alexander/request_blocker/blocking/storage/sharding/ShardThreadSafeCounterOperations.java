@@ -1,17 +1,18 @@
-package ru.alexander.request_blocker.blocking.storage.operations;
+package ru.alexander.request_blocker.blocking.storage.sharding;
 
 import ru.alexander.request_blocker.blocking.ip.api.exceptions.ExecutionBlockException;
 import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
 import ru.alexander.request_blocker.blocking.storage.api.locks.ShardLock;
 import ru.alexander.request_blocker.blocking.storage.api.locks.StorageLock;
+import ru.alexander.request_blocker.blocking.storage.operations.SimpleCounterStorageOperations;
 
 public class ShardThreadSafeCounterOperations extends SimpleCounterStorageOperations {
-    private final ShardLock shardLock;
     private final StorageLock storageLock;
+    private final ShardLock shardLock;
 
     public ShardThreadSafeCounterOperations(
-        ShardLock shardLock,
         StorageLock storageLock,
+        ShardLock shardLock,
         CountersStorage storage,
         int requestsLimit) {
         super(storage, requestsLimit);

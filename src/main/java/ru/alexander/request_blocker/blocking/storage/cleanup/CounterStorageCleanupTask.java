@@ -5,6 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import ru.alexander.request_blocker.blocking.storage.api.CommonCounterStorageOperations;
 
+/**
+ * Periodically cleans up counters storage
+ */
 @RequiredArgsConstructor
 @Slf4j
 class CounterStorageCleanupTask {
@@ -17,6 +20,6 @@ class CounterStorageCleanupTask {
     )
     public void cleanupCounters() {
         counterLogic.clearStorage();
-        log.info("Counters cleared");
+        log.debug("Counters cleared");
     }
 }

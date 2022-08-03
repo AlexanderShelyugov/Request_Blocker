@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
+import ru.alexander.request_blocker.blocking.storage.sharding.ShardingStrategy;
 import ru.alexander.request_blocker.util.IpAddressHelper;
 
 import java.util.HashMap;
@@ -27,7 +28,7 @@ class SimpleCountersStorageTest {
 
     @BeforeEach
     void setUp() {
-        storage = new SimpleCountersStorage();
+        storage = new SimpleCountersStorage(new SimpleShardingStrategy());
     }
 
     @Test
@@ -114,5 +115,12 @@ class SimpleCountersStorageTest {
                     .map((ip) -> new Object[]{entry.getKey(), ip})
             )
             .forEach((entry) -> consumer.accept((Integer) entry[0], (String) entry[1]));
+    }
+
+    private static class SimpleShardingStrategy implements ShardingStrategy {
+        @Override
+        public String getShardName(int executionID, String ip) {
+            return "shard-name";
+        }
     }
 }
