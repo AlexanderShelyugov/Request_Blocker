@@ -2,34 +2,40 @@ package ru.alexander.request_blocker.blocking.storage.operations;
 
 import ru.alexander.request_blocker.blocking.ip.api.exceptions.ExecutionBlockException;
 import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
-import ru.alexander.request_blocker.blocking.storage.api.locks.StorageLockAccess;
-import ru.alexander.request_blocker.blocking.storage.api.locks.StorageLockHandle;
+import ru.alexander.request_blocker.blocking.storage.api.locks.ShardLock;
+import ru.alexander.request_blocker.blocking.storage.api.locks.StorageLock;
 
 public class ShardThreadSafeCounterOperations extends SimpleCounterStorageOperations {
-    private final StorageLockAccess storageLock;
-    private final StorageLockHandle storageAccessHandle;
+    private final ShardLock shardLock;
+    private final StorageLock storageLock;
 
     public ShardThreadSafeCounterOperations(
-        StorageLockAccess storageLock,
-        StorageLockHandle storageAccessHandle,
+        ShardLock shardLock,
+        StorageLock storageLock,
         CountersStorage storage,
         int requestsLimit) {
         super(storage, requestsLimit);
+        this.shardLock = shardLock;
         this.storageLock = storageLock;
-        this.storageAccessHandle = storageAccessHandle;
     }
 
     @Override
     public void validateIPCount(int executionID, String ip) throws ExecutionBlockException {
-        storageLock.lockAccess(executionID, ip);
-        super.validateIPCount(executionID, ip);
-        storageLock.unlockAccess(executionID, ip);
+        shardLock.lock(executionID, ip);
+        try {
+            super.validateIPCount(executionID, ip);
+        } finally {
+            shardLock.unlock(executionID, ip);
+        }
     }
 
     @Override
     public void clearStorage() {
-        storageAccessHandle.lock();
-        super.clearStorage();
-        storageAccessHandle.release();
+        storageLock.lock();
+        try {
+            super.clearStorage();
+        } finally {
+            storageLock.unlock();
+        }
     }
 }

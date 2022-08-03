@@ -14,36 +14,37 @@ import java.util.concurrent.locks.ReentrantLock;
 import static java.util.Objects.requireNonNull;
 
 @RequiredArgsConstructor
-public class ShardStorageLock implements StorageLockAccess, StorageLockHandle {
+public class ShardStorageLock implements ShardLock, StorageLock {
     private final AtomicBoolean storageIsOpen = new AtomicBoolean(true);
-    private final Object storageShardLock = new Object();
-    private final Object globalStorageLock = new Object();
     private final AtomicLong activeStorageUses = new AtomicLong(0);
+    private final Object shardAccess = new Object();
+    private final Object storageAccess = new Object();
     private final Map<String, Lock> shardLocks = new HashMap<>();
     private final ShardingStrategy shardingStrategy;
 
     @Override
-    public boolean canAccessStorage() {
-        return storageIsOpen.get();
-    }
-
-    @Override
     public void lock() {
-        while (true) {
-            synchronized (globalStorageLock) {
-                if (0 < activeStorageUses.get()) {
-                    Thread.yield();
-                    continue;
+        // We stop letting new users in
+        synchronized (storageAccess) {
+            storageIsOpen.set(false);
+        }
+
+        // But we are waiting for everyone who works with the repository to finish their work
+        long activeUsers = Long.MAX_VALUE;
+        while (0 < activeUsers) {
+            synchronized (storageAccess) {
+                activeUsers = activeStorageUses.get();
+                if (activeUsers < 0) {
+                    throw new IllegalStateException("Impossible negative number of active storage users!");
                 }
-                storageIsOpen.set(false);
-                return;
             }
+            Thread.yield();
         }
     }
 
     @Override
-    public void release() {
-        synchronized (globalStorageLock) {
+    public void unlock() {
+        synchronized (storageAccess) {
             if (0 != activeStorageUses.get()) {
                 throw new IllegalStateException("Tried to lock storage. There were active storage uses!");
             }
@@ -52,8 +53,8 @@ public class ShardStorageLock implements StorageLockAccess, StorageLockHandle {
     }
 
     @Override
-    public void lockAccess(int executionID, String ip) {
-        synchronized (storageShardLock) {
+    public void lock(int executionID, String ip) {
+        synchronized (shardAccess) {
             registerStorageUsage();
             try {
                 val shardName = shardingStrategy.getShardName(executionID, ip);
@@ -67,8 +68,8 @@ public class ShardStorageLock implements StorageLockAccess, StorageLockHandle {
     }
 
     @Override
-    public void unlockAccess(int executionID, String ip) {
-        synchronized (storageShardLock) {
+    public void unlock(int executionID, String ip) {
+        synchronized (shardAccess) {
             val shardName = shardingStrategy.getShardName(executionID, ip);
             val shardLock = requireNonNull(shardLocks.get(shardName), "Failed to achieve lock.");
             shardLock.unlock();
@@ -78,20 +79,22 @@ public class ShardStorageLock implements StorageLockAccess, StorageLockHandle {
 
     private void registerStorageUsage() {
         while (true) {
-            synchronized (globalStorageLock) {
-                if (!storageIsOpen.get()) {
-                    Thread.yield();
-                    continue;
+            synchronized (storageAccess) {
+                if (storageIsOpen.get()) {
+                    activeStorageUses.incrementAndGet();
+                    return;
                 }
-                activeStorageUses.incrementAndGet();
-                return;
             }
+            Thread.yield();
         }
     }
 
     private void unregisterStorageUsage() {
-        synchronized (globalStorageLock) {
-            activeStorageUses.decrementAndGet();
+        synchronized (storageAccess) {
+            val u = activeStorageUses.decrementAndGet();
+            if (u < 0) {
+                throw new IllegalStateException("Number of registrations do not match!");
+            }
         }
     }
 }
