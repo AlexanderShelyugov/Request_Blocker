@@ -21,7 +21,7 @@ public class IPv6ShardingStrategy implements ShardingStrategy {
     /**
      * Symbol, that divides addresses' blocks
      */
-    private static final String SEPARATOR_REGEXP = ":";
+    private static final String SEPARATOR = ":";
 
     private final Map<String, Long> shardRanges;
 
@@ -66,8 +66,11 @@ public class IPv6ShardingStrategy implements ShardingStrategy {
     }
 
     private static long ipToSpectrumPosition(String ip) {
-        val firstSeparator = ip.indexOf(SEPARATOR_REGEXP);
-        val secondSeparator = ip.indexOf(SEPARATOR_REGEXP, firstSeparator);
+        val firstSeparator = ip.indexOf(SEPARATOR);
+        val secondSeparator = ip.indexOf(SEPARATOR, firstSeparator);
+        if (firstSeparator < 0L || secondSeparator < 0L) {
+            throw new IllegalArgumentException("Failed to extract first two blocks from IP");
+        }
         return blockToLong(ip.substring(0, firstSeparator)) * VALUES_PER_BLOCK
             + blockToLong(ip.substring(firstSeparator + 1, secondSeparator));
     }
