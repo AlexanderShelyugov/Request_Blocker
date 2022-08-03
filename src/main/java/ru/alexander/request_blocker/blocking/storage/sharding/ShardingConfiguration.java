@@ -13,7 +13,7 @@ import ru.alexander.request_blocker.blocking.storage.sharding.strategy.ShardingS
 
 @Configuration
 public class ShardingConfiguration {
-    @Value("${block_ip.requests.amount:10}")
+    @Value("${block_ip.requests.limit:10}")
     private int requestLimit;
 
     @Bean

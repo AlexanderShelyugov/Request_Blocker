@@ -1,6 +1,6 @@
 block_ip:
   requests:
-    amount: 3
+    limit: 3
     time_window_seconds: 30
 server:
   port: ${PORT:8080}

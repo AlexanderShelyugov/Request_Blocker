@@ -44,7 +44,7 @@ class BlankSampleControllerTest {
     private static final int TOTAL_REQUESTS = REQUESTS_AT_ONCE * 20;
     private static final int TIME_LIMIT_SECONDS = 30;
 
-    @Value("${block_ip.requests.amount}")
+    @Value("${block_ip.requests.limit}")
     private int expectedSuccesses;
 
     @Autowired
