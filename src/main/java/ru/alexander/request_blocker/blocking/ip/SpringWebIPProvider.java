@@ -1,4 +1,4 @@
-package ru.alexander.request_blocker.blocking.ip.impl;
+package ru.alexander.request_blocker.blocking.ip;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
