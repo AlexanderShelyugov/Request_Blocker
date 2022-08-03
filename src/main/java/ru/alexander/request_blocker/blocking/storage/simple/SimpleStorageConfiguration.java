@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import ru.alexander.request_blocker.blocking.storage.api.CommonCounterLogic;
+import ru.alexander.request_blocker.blocking.storage.api.CommonCounterStorageOperations;
 import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
-import ru.alexander.request_blocker.blocking.storage.operations.ThreadSafeSimpleCounterLogic;
+import ru.alexander.request_blocker.blocking.storage.operations.ThreadSafeSimpleCounterStorageOperations;
 
 @Configuration
 @Profile("storage-simple")
@@ -20,7 +20,7 @@ public class SimpleStorageConfiguration {
     }
 
     @Bean
-    public CommonCounterLogic commonCounterLogic(CountersStorage storage) {
-        return new ThreadSafeSimpleCounterLogic(storage, requestLimit);
+    public CommonCounterStorageOperations commonCounterLogic(CountersStorage storage) {
+        return new ThreadSafeSimpleCounterStorageOperations(storage, requestLimit);
     }
 }

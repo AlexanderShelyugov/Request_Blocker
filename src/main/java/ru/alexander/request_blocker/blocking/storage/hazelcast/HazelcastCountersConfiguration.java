@@ -7,9 +7,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-import ru.alexander.request_blocker.blocking.storage.api.CommonCounterLogic;
+import ru.alexander.request_blocker.blocking.storage.api.CommonCounterStorageOperations;
 import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
-import ru.alexander.request_blocker.blocking.storage.operations.ThreadSafeSimpleCounterLogic;
+import ru.alexander.request_blocker.blocking.storage.api.locks.ShardStorageLock;
+import ru.alexander.request_blocker.blocking.storage.operations.ShardThreadSafeCounterOperations;
 import ru.alexander.request_blocker.blocking.storage.sharding.IPTypesShardingStrategy;
 import ru.alexander.request_blocker.blocking.storage.sharding.IPv4ShardingStrategy;
 import ru.alexander.request_blocker.blocking.storage.sharding.IPv6ShardingStrategy;
@@ -40,8 +41,18 @@ public class HazelcastCountersConfiguration {
     }
 
     @Bean
-    public CommonCounterLogic commonCounterLogic(CountersStorage storage) {
-        return new ThreadSafeSimpleCounterLogic(
+    public ShardStorageLock shardStorageLock(ShardingStrategy shardingStrategy) {
+        return new ShardStorageLock(shardingStrategy);
+    }
+
+    @Bean
+    public CommonCounterStorageOperations commonCounterLogic(
+        ShardStorageLock storageLock,
+        CountersStorage storage
+    ) {
+        return new ShardThreadSafeCounterOperations(
+            storageLock,
+            storageLock,
             storage,
             requestLimit
         );

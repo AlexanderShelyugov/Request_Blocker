@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import ru.alexander.request_blocker.blocking.ip.api.CurrentIPProvider;
-import ru.alexander.request_blocker.blocking.storage.api.CommonCounterLogic;
+import ru.alexander.request_blocker.blocking.storage.api.CommonCounterStorageOperations;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,7 +15,7 @@ public class IPBlockingConfiguration {
     @Bean
     @Scope("prototype")
     public IPBlockingAspect ipBlockingAspect(
-        CommonCounterLogic storageLogic,
+        CommonCounterStorageOperations storageLogic,
         CurrentIPProvider ipProvider
     ) {
         return new IPBlockingAspect(

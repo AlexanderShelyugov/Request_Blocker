@@ -1,20 +1,19 @@
 package ru.alexander.request_blocker.blocking.ip.impl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Synchronized;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import ru.alexander.request_blocker.blocking.ip.api.CurrentIPProvider;
 import ru.alexander.request_blocker.blocking.ip.api.exceptions.ExecutionBlockException;
-import ru.alexander.request_blocker.blocking.storage.api.CommonCounterLogic;
+import ru.alexander.request_blocker.blocking.storage.api.CommonCounterStorageOperations;
 
 @Aspect("pertarget(ru.alexander.request_blocker.blocking.ip.impl.IPBlockingAspect.checkForRequestsPerIP())")
 @RequiredArgsConstructor
 class IPBlockingAspect {
     private final int executionID;
-    private final CommonCounterLogic storageLogic;
+    private final CommonCounterStorageOperations storageOperations;
     private final CurrentIPProvider ipProvider;
 
     @Pointcut("@annotation(ru.alexander.request_blocker.blocking.ip.api.LimitSameIP)")
@@ -22,8 +21,7 @@ class IPBlockingAspect {
     }
 
     @Before("checkForRequestsPerIP()")
-    @Synchronized
     public void verifyIPCount(JoinPoint joinPoint) throws ExecutionBlockException {
-        storageLogic.validateIPCount(executionID, ipProvider.getCurrentIPAddress());
+        storageOperations.validateIPCount(executionID, ipProvider.getCurrentIPAddress());
     }
 }
