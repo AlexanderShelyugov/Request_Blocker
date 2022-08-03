@@ -52,8 +52,9 @@ in [this](src/main/java/ru/alexander/request_blocker/web_server/service/impl/Som
 
 ✔️ Best practices are applied to make this functionality fast in high-load applications.
 
-✔️ [Unit test that calls endpoint from random IP addresses in parallel](src/test/java/ru/alexander/request_blocker/web_server/controller/BlankSampleControllerTest.java)
-is present.
+✔️ The [unit test]((src/test/java/ru/alexander/request_blocker/web_server/controller/BlankSampleControllerTest.java)) that
+calls [endpoint](src/main/java/ru/alexander/request_blocker/web_server/controller/BlankSampleController.java) from
+random IP addresses in parallel is present.
 
 ## Usage
 
