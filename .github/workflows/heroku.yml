@@ -1,4 +1,4 @@
-name: Application workflow
+name: CD pipeline
 on:
   push:
     branches:
