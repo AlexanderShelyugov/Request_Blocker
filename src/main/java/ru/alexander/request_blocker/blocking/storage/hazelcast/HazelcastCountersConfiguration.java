@@ -25,6 +25,12 @@ public class HazelcastCountersConfiguration {
     @Value("${block_ip.requests.amount:10}")
     private int requestLimit;
 
+    @Value("${storage.hazelcast.port:5900}")
+    private int hazelcastPort;
+    @Value("${storage.hazelcast.allow_auto_increment:false}")
+    private boolean hazelcastAllowAutoIncrement;
+
+
     @Bean
     public CountersStorage getHazelcastCountersStorage(
         HazelcastInstance hazelcast,
@@ -49,8 +55,9 @@ public class HazelcastCountersConfiguration {
     @Bean
     public Config getHazelcastConfig() {
         Config config = new Config();
-        config.getNetworkConfig().setPort(5900)
-            .setPortAutoIncrement(false);
+        config.getNetworkConfig()
+            .setPort(hazelcastPort)
+            .setPortAutoIncrement(hazelcastAllowAutoIncrement);
         return config;
     }
 
