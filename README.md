@@ -1,4 +1,4 @@
-# Request_Blocker
+# Request Blocker
 
 Block incoming requests from the same IP address, if there are too many of them.
 
