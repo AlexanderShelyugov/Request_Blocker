@@ -18,7 +18,7 @@ import ru.alexander.request_blocker.blocking.storage.sharding.ShardingStrategy;
 import static com.hazelcast.core.Hazelcast.newHazelcastInstance;
 
 @Configuration
-@Profile("default")
+@Profile({"default", "storage-hazelcast"})
 @Primary
 public class HazelcastCountersConfiguration {
 
