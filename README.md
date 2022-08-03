@@ -1,6 +1,6 @@
 # Request Blocker
 
-Block incoming requests from the same IP address, if there are too many of them.
+Blocks incoming requests from the same IP address, if there are too many of them.
 
 ![CD pipeline](https://github.com/AlexanderShelyugov/Convertio/actions/workflows/heroku.yml/badge.svg)
 ![Health-Heroku](https://img.shields.io/website?label=App%20on%20Heroku&url=https://request-blocker.herokuapp.com/actuator/health)
