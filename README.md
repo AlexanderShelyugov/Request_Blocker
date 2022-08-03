@@ -7,9 +7,27 @@ Block incoming requests from the same IP address, if there are too many of them
 
 ## Table of contents
 
+- [Design](#Design)
 - [Usage](#Usage)
 - [Build](#Build)
 - [Run](#Run)
+
+## Design
+
+Since we have a hypothetical high-load application we need to tune counters' read AND write operations.
+
+Since reads and writes are 1-1 - we should focus on writes.
+
+The best known way to optimize write operations is **sharding**.
+
+Therefore, we use organized shards.
+
+There are two storage options to use:
+
+- with simple HashMaps (faster, but drains this process' RAM)
+- with [Hazelcast](https://hazelcast.com) (slower, but RAM is used in a separate process)
+
+Default option is simple storage. You can use Hazelcast via "storage-hazelcast" spring profile.
 
 ## Usage
 
