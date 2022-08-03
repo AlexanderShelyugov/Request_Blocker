@@ -1,6 +1,6 @@
 # Request_Blocker
 
-Block incoming requests from the same IP address, if there are too many of them
+Block incoming requests from the same IP address, if there are too many of them.
 
 ![CD pipeline](https://github.com/AlexanderShelyugov/Convertio/actions/workflows/heroku.yml/badge.svg)
 ![Health-Heroku](https://img.shields.io/website?label=App%20on%20Heroku&url=https://request-blocker.herokuapp.com/actuator/health)
@@ -16,18 +16,26 @@ Block incoming requests from the same IP address, if there are too many of them
 
 Since we have a hypothetical high-load application we need to tune counters' read AND write operations.
 
-Since reads and writes are 1-1 - we should focus on writes.
+Since reads and writes are 1-1 we should focus on writes.
 
 The best known way to optimize write operations is **sharding**.
 
-Therefore, we use organized shards.
+💡 Therefore, we use organized shards!
 
 There are two storage options to use:
 
 - with simple HashMaps (faster, but drains this process' RAM)
-- with [Hazelcast](https://hazelcast.com) (slower, but RAM is used in a separate process)
+- with [Hazelcast](https://hazelcast.com) (slower, but RAM is used in a separate process + all Hazelcast configuration
+  options)
 
 Default option is simple storage. You can use Hazelcast via "storage-hazelcast" spring profile.
+
+### Important note!
+
+Both [@Configuration](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/annotation/Configuration.html)
+and [@Component](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/stereotype/Component.html)
+bean creation mechanisms are present. This is done intentionally for
+demonstration purposes.
 
 ## Usage
 
