@@ -3,7 +3,7 @@ package ru.alexander.request_blocker.blocking.storage.api.locks;
 import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
 import lombok.val;
-import ru.alexander.request_blocker.blocking.storage.sharding.ShardingStrategy;
+import ru.alexander.request_blocker.blocking.storage.sharding.strategy.ShardingStrategy;
 
 import java.util.HashMap;
 import java.util.Map;

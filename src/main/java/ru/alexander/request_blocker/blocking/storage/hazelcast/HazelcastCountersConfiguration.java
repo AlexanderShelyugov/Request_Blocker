@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
-import ru.alexander.request_blocker.blocking.storage.sharding.ShardingStrategy;
+import ru.alexander.request_blocker.blocking.storage.sharding.strategy.ShardingStrategy;
 
 import static com.hazelcast.core.Hazelcast.newHazelcastInstance;
 

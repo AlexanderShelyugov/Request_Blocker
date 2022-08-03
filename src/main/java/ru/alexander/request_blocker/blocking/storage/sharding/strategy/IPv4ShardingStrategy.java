@@ -1,4 +1,4 @@
-package ru.alexander.request_blocker.blocking.storage.sharding;
+package ru.alexander.request_blocker.blocking.storage.sharding.strategy;
 
 import lombok.val;
 

@@ -4,7 +4,7 @@ import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.HazelcastInstance;
 import lombok.val;
 import ru.alexander.request_blocker.blocking.storage.sharding.AbstractShardingCounterStorage;
-import ru.alexander.request_blocker.blocking.storage.sharding.ShardingStrategy;
+import ru.alexander.request_blocker.blocking.storage.sharding.strategy.ShardingStrategy;
 
 import java.util.Map;
 

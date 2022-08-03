@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
-import ru.alexander.request_blocker.blocking.storage.sharding.ShardingStrategy;
+import ru.alexander.request_blocker.blocking.storage.sharding.strategy.ShardingStrategy;
 import ru.alexander.request_blocker.util.IpAddressHelper;
 
 import java.util.HashMap;

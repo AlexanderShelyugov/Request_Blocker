@@ -6,6 +6,10 @@ import org.springframework.context.annotation.Configuration;
 import ru.alexander.request_blocker.blocking.storage.api.CommonCounterStorageOperations;
 import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
 import ru.alexander.request_blocker.blocking.storage.api.locks.ShardStorageLock;
+import ru.alexander.request_blocker.blocking.storage.sharding.strategy.IPTypesShardingStrategy;
+import ru.alexander.request_blocker.blocking.storage.sharding.strategy.IPv4ShardingStrategy;
+import ru.alexander.request_blocker.blocking.storage.sharding.strategy.IPv6ShardingStrategy;
+import ru.alexander.request_blocker.blocking.storage.sharding.strategy.ShardingStrategy;
 
 @Configuration
 public class ShardingConfiguration {

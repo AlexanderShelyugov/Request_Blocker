@@ -2,7 +2,7 @@ package ru.alexander.request_blocker.blocking.storage.simple;
 
 import lombok.val;
 import ru.alexander.request_blocker.blocking.storage.sharding.AbstractShardingCounterStorage;
-import ru.alexander.request_blocker.blocking.storage.sharding.ShardingStrategy;
+import ru.alexander.request_blocker.blocking.storage.sharding.strategy.ShardingStrategy;
 
 import java.util.HashMap;
 import java.util.HashSet;
