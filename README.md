@@ -9,8 +9,8 @@ Block incoming requests from the same IP address, if there are too many of them.
 
 - [Design](#Design)
     - [Explanation](#Explanation)
-    - [Important note!](#Important note!)
-    - [Achieved bullet points](#Achieved bullet points)
+    - [Important note!](#important-note)
+    - [Achieved bullet points](#achieved-bullet-points)
 - [Usage](#Usage)
 - [Build](#Build)
 - [Run](#Run)
