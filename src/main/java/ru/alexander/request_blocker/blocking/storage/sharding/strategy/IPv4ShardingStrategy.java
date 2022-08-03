@@ -27,7 +27,7 @@ public class IPv4ShardingStrategy implements ShardingStrategy {
     private static final String SHARD_NAME_FORMAT = "%d-%s";
     private static final String SEPARATOR = ".";
 
-    private final Map<String, Integer> shardRanges;
+    private final Map<Integer, String> shardRanges;
 
     public IPv4ShardingStrategy() {
         this(IPV4_DEFAULT_SHARDS_COUNT);
@@ -43,25 +43,25 @@ public class IPv4ShardingStrategy implements ShardingStrategy {
         // We take first two numbers of address,
         // and calculating their position on overall spectrum [0.0 - 255.255].
         // After we know position, we look which range this position fits to.
-        // When we've figured the range, we know the shard's name!
+        // When we've figured the range, we know the shard's name.
         val ipToken = ipToSpectrumPosition(ipv4);
-        val ipRangeName = shardRanges.entrySet().stream()
-            .filter(range -> ipToken <= range.getValue())
-            .map(Map.Entry::getKey)
+        final String ipRangeName = shardRanges.entrySet().stream()
+            .filter(range -> ipToken <= range.getKey())
+            .map(Map.Entry::getValue)
             .findFirst()
             .orElseThrow(IllegalStateException::new);
         return String.format(SHARD_NAME_FORMAT, executionID, ipRangeName);
     }
 
-    private Map<String, Integer> createIPv4ShardRanges(int shardCount) {
-        val result = new HashMap<String, Integer>(shardCount);
+    private Map<Integer, String> createIPv4ShardRanges(int shardCount) {
+        val result = new HashMap<Integer, String>(shardCount);
 
         var itemsPerShard = MAX_ITEMS_COUNT / shardCount;
         var ipStep = 0;
         var shardNum = 0;
         do {
             ipStep = min(ipStep + itemsPerShard, MAX_ITEMS_COUNT);
-            result.put("v4_" + shardNum, ipStep);
+            result.put(ipStep, "v4_" + shardNum);
             shardNum++;
         } while (MAX_ITEMS_COUNT != ipStep);
 

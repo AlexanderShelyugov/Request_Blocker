@@ -34,7 +34,7 @@ public class IPv6ShardingStrategy implements ShardingStrategy {
      */
     private static final String SEPARATOR = ":";
 
-    private final Map<String, Long> shardRanges;
+    private final Map<Long, String> shardRanges;
 
     public IPv6ShardingStrategy() {
         this(IPV6_DEFAULT_SHARDS_COUNT);
@@ -53,23 +53,23 @@ public class IPv6ShardingStrategy implements ShardingStrategy {
         // When we've figured the range, we know the shard's name!
 
         val ipToken = ipToSpectrumPosition(ipv6);
-        val rangeName = shardRanges.entrySet().stream()
-            .filter(range -> ipToken <= range.getValue())
-            .map(Map.Entry::getKey)
+        final String rangeName = shardRanges.entrySet().stream()
+            .filter(range -> ipToken <= range.getKey())
+            .map(Map.Entry::getValue)
             .findFirst()
             .orElseThrow(IllegalStateException::new);
         return String.format(SHARD_NAME_FORMAT, executionID, rangeName);
     }
 
-    private static Map<String, Long> createIPv6ShardRanges(int shardCount) {
-        val result = new HashMap<String, Long>(shardCount);
+    private static Map<Long, String> createIPv6ShardRanges(int shardCount) {
+        val result = new HashMap<Long, String>(shardCount);
 
         var itemsPerShard = MAX_ITEMS_COUNT / shardCount;
         var ipStep = 0L;
         var shardNum = 0L;
         do {
             ipStep = min(ipStep + itemsPerShard, MAX_ITEMS_COUNT);
-            result.put("v6_" + shardNum, ipStep);
+            result.put(ipStep, "v6_" + shardNum);
             shardNum++;
         } while (MAX_ITEMS_COUNT != ipStep);
 
@@ -93,7 +93,6 @@ public class IPv6ShardingStrategy implements ShardingStrategy {
         return of(block)
             .map(String::trim)
             .map(b -> Long.parseLong(b, 16))
-            .orElse(0L);
+            .orElse(0L); // We don't throw here, because IPv6 can be in compressed format.
     }
-
 }
