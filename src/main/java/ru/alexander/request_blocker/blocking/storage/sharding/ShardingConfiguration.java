@@ -9,7 +9,6 @@ import ru.alexander.request_blocker.blocking.storage.api.locks.ShardStorageLock;
 
 @Configuration
 public class ShardingConfiguration {
-
     @Value("${block_ip.requests.amount:10}")
     private int requestLimit;
 

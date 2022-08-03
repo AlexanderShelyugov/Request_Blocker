@@ -1,6 +1,7 @@
 package ru.alexander.request_blocker.blocking.storage.api.locks;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Synchronized;
 import lombok.val;
 import ru.alexander.request_blocker.blocking.storage.sharding.ShardingStrategy;
 
@@ -14,41 +15,44 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @RequiredArgsConstructor
 public class ShardStorageLock implements ShardLock, StorageLock {
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Lock storageLock = readWriteLock.writeLock();
+    private final Lock shardAccessLock = readWriteLock.readLock();
     private final Map<String, Lock> shardLocks = new HashMap<>();
     private final ShardingStrategy shardingStrategy;
 
     @Override
     public void lock() {
-        readWriteLock.writeLock().lock();
+        storageLock.lock();
     }
 
     @Override
     public void unlock() {
-        readWriteLock.writeLock().unlock();
+        storageLock.unlock();
     }
 
     @Override
     public void lock(int executionID, String ip) {
-        readWriteLock.readLock().lock();
+        shardAccessLock.lock();
         try {
             val shardLock = getShardLock(executionID, ip);
             shardLock.lock();
         } finally {
-            readWriteLock.readLock().unlock();
+            shardAccessLock.unlock();
         }
     }
 
     @Override
     public void unlock(int executionID, String ip) {
-        readWriteLock.readLock().lock();
+        shardAccessLock.lock();
         try {
             val shardLock = getShardLock(executionID, ip);
             shardLock.unlock();
         } finally {
-            readWriteLock.readLock().unlock();
+            shardAccessLock.unlock();
         }
     }
 
+    @Synchronized
     private Lock getShardLock(int executionID, String ip) {
         val shardName = shardingStrategy.getShardName(executionID, ip);
         return shardLocks.computeIfAbsent(shardName, shard -> new ReentrantLock());
