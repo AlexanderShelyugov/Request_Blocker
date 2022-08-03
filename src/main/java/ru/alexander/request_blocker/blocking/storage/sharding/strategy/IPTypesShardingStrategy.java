@@ -4,15 +4,23 @@ import inet.ipaddr.AddressStringException;
 import inet.ipaddr.IPAddressString;
 import inet.ipaddr.ipv4.IPv4Address;
 import inet.ipaddr.ipv4.IPv4AddressSection;
-import lombok.RequiredArgsConstructor;
+import lombok.Builder;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.apache.commons.validator.routines.InetAddressValidator;
 
-@RequiredArgsConstructor
+/**
+ * Sharding strategy that routes naming decision to underlying strategies depending on the given IP address version.
+ * <p>
+ * It also detects IPv4 addresses, written in IPv6 formats.
+ */
+@Builder
 public class IPTypesShardingStrategy implements ShardingStrategy {
     private static final InetAddressValidator IP_VALIDATOR = InetAddressValidator.getInstance();
+    @NonNull
     private final ShardingStrategy ipv4ShardingStrategy;
+    @NonNull
     private final ShardingStrategy ipv6ShardingStrategy;
 
     @Override

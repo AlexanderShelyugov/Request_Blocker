@@ -6,6 +6,9 @@ import ru.alexander.request_blocker.blocking.storage.api.locks.ShardLock;
 import ru.alexander.request_blocker.blocking.storage.api.locks.StorageLock;
 import ru.alexander.request_blocker.blocking.storage.operations.SimpleCounterStorageOperations;
 
+/**
+ * The extension of common counter operations, that takes shared store locking into consideration.
+ */
 public class ShardThreadSafeCounterOperations extends SimpleCounterStorageOperations {
     private final StorageLock storageLock;
     private final ShardLock shardLock;

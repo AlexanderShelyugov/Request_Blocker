@@ -7,6 +7,9 @@ import ru.alexander.request_blocker.blocking.ip.api.CurrentIPProvider;
 
 import static org.springframework.web.context.request.RequestContextHolder.currentRequestAttributes;
 
+/**
+ * Allows to get callee IP address via Spring Web.
+ */
 @Service
 @Slf4j
 class SpringWebIPProvider implements CurrentIPProvider {

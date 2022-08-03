@@ -11,6 +11,9 @@ import java.util.Map;
 
 import static lombok.AccessLevel.PROTECTED;
 
+/**
+ * Common template for sharding storages.
+ */
 @RequiredArgsConstructor
 public abstract class AbstractShardingCounterStorage implements CountersStorage {
 

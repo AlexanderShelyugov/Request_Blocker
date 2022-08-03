@@ -8,6 +8,9 @@ import ru.alexander.request_blocker.blocking.storage.sharding.strategy.ShardingS
 
 import java.util.Map;
 
+/**
+ * Counters storage implemented with Hazelcast.
+ */
 class HazelcastCountersStorage extends AbstractShardingCounterStorage {
     private final HazelcastInstance hazelcast;
 

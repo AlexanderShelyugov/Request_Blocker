@@ -12,9 +12,14 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+/**
+ * Locking mechanism that manages access to the storage in general and it's shards.
+ * <p>
+ * It DOES {@link Lock} logic, but doesn't implement it to avoid confusion.
+ */
 @RequiredArgsConstructor
 public class ShardStorageLock implements ShardLock, StorageLock {
-    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final Lock storageLock = readWriteLock.writeLock();
     private final Lock shardAccessLock = readWriteLock.readLock();
     private final Map<String, Lock> shardLocks = new HashMap<>();

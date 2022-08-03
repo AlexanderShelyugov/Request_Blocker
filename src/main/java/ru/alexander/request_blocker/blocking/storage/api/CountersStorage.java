@@ -1,7 +1,7 @@
 package ru.alexander.request_blocker.blocking.storage.api;
 
 /**
- * API for managing counters.
+ * Storage of counters.
  */
 public interface CountersStorage {
     /**

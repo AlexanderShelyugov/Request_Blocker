@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+/**
+ * Counter storage that works with plain java code.
+ */
 class SimpleCountersStorage extends AbstractShardingCounterStorage {
     private final Map<Integer, Map<String, Map<String, Integer>>> storageMap = new HashMap<>();
 

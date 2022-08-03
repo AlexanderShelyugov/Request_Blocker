@@ -10,6 +10,15 @@ import static java.util.Collections.unmodifiableMap;
 import static java.util.Optional.of;
 import static java.util.function.Predicate.not;
 
+/**
+ * Sharding strategy for IPv4 addresses.
+ * <p>
+ * Current implementation works with only first two blocks.
+ * <p>
+ * Overall spectrum between 0.0 and 255.255 is divided by shards number.
+ * <p>
+ * Incoming IP address is located in some range - that will be our shard.
+ */
 public class IPv4ShardingStrategy implements ShardingStrategy {
     private static final int IPV4_DEFAULT_SHARDS_COUNT = 100;
     private static final int VALUES_PER_BLOCK = 256;
@@ -77,6 +86,7 @@ public class IPv4ShardingStrategy implements ShardingStrategy {
             .map(String::trim)
             .filter(not(String::isEmpty))
             .map(Integer::parseInt)
-            .orElse(0);
+            .orElseThrow(() -> new IllegalArgumentException(
+                "Failed to parse IP block. It appears to have separators close to each other."));
     }
 }

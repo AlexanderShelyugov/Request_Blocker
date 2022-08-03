@@ -9,6 +9,17 @@ import static java.lang.Long.min;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Optional.of;
 
+/**
+ * Sharding strategy for IPv6 addresses.
+ * <p>
+ * Current implementation works with only first two blocks.
+ * <p>
+ * Overall spectrum between 0000:0000 and ffff.ffff is divided by shards number.
+ * <p>
+ * Incoming IP address is located in some range - that will be our shard.
+ * <p>
+ * Note. We DO pay attention to compressed forms of IP Address.
+ */
 public class IPv6ShardingStrategy implements ShardingStrategy {
     private static final long IPV6_DEFAULT_SHARDS_COUNT = 1000;
     private static final long VALUES_PER_BLOCK = 65536L;

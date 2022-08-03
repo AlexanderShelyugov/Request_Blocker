@@ -18,10 +18,10 @@ public class ShardingConfiguration {
 
     @Bean
     public ShardingStrategy getIPShardingStrategy() {
-        return new IPTypesShardingStrategy(
-            new IPv4ShardingStrategy(),
-            new IPv6ShardingStrategy()
-        );
+        return IPTypesShardingStrategy.builder()
+            .ipv4ShardingStrategy(new IPv4ShardingStrategy())
+            .ipv6ShardingStrategy(new IPv6ShardingStrategy())
+            .build();
     }
 
     @Bean

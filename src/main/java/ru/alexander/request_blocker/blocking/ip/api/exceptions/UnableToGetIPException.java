@@ -1,5 +1,8 @@
 package ru.alexander.request_blocker.blocking.ip.api.exceptions;
 
+/**
+ * Exception is thrown when we are unable to retrieve a callee IP address.
+ */
 public class UnableToGetIPException extends ExecutionBlockException {
     public UnableToGetIPException() {
         super();

@@ -1,5 +1,8 @@
 package ru.alexander.request_blocker.blocking.ip.api.exceptions;
 
+/**
+ * Root exception of our blocking system
+ */
 public class ExecutionBlockException extends Exception {
     public ExecutionBlockException() {
         super();

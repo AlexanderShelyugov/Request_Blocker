@@ -1,6 +1,7 @@
 package ru.alexander.request_blocker.blocking.ip.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -9,6 +10,9 @@ import ru.alexander.request_blocker.blocking.ip.api.CurrentIPProvider;
 import ru.alexander.request_blocker.blocking.ip.api.exceptions.ExecutionBlockException;
 import ru.alexander.request_blocker.blocking.storage.api.CommonCounterStorageOperations;
 
+/**
+ * Aspect controls triggering of limitation logic
+ */
 @Aspect("pertarget(ru.alexander.request_blocker.blocking.ip.impl.IPBlockingAspect.checkForRequestsPerIP())")
 @RequiredArgsConstructor
 class IPBlockingAspect {
@@ -22,6 +26,7 @@ class IPBlockingAspect {
 
     @Before("checkForRequestsPerIP()")
     public void verifyIPCount(JoinPoint joinPoint) throws ExecutionBlockException {
-        storageOperations.validateIPCount(executionID, ipProvider.getCurrentIPAddress());
+        val ip = ipProvider.getCurrentIPAddress();
+        storageOperations.validateIPCount(executionID, ip);
     }
 }
