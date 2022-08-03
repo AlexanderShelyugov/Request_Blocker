@@ -67,7 +67,7 @@ public class IPv6ShardingStrategy implements ShardingStrategy {
 
     private static long ipToSpectrumPosition(String ip) {
         val firstSeparator = ip.indexOf(SEPARATOR);
-        val secondSeparator = ip.indexOf(SEPARATOR, firstSeparator);
+        val secondSeparator = ip.indexOf(SEPARATOR, firstSeparator + 1);
         if (firstSeparator < 0L || secondSeparator < 0L) {
             throw new IllegalArgumentException("Failed to extract first two blocks from IP");
         }
