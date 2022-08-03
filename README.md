@@ -24,11 +24,12 @@ The best known way to optimize write operations is **sharding**.
 
 There are two storage options to use:
 
-- with simple HashMaps (faster, but drains this process' RAM)
+- with simple [HashMaps](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/HashMap.html) (faster,
+  but drains this process' RAM)
 - with [Hazelcast](https://hazelcast.com) (slower, but RAM is used in a separate process + all Hazelcast configuration
   options)
 
-Default option is simple storage. You can use Hazelcast via "storage-hazelcast" spring profile.
+Default option is simple storage. You can use Hazelcast via `storage-hazelcast` Spring profile.
 
 ### Important note!
 
