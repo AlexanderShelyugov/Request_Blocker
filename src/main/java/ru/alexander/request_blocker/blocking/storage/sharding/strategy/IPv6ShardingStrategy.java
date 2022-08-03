@@ -71,6 +71,9 @@ public class IPv6ShardingStrategy implements ShardingStrategy {
         if (firstSeparator < 0L || secondSeparator < 0L) {
             throw new IllegalArgumentException("Failed to extract first two blocks from IP");
         }
+        if (secondSeparator <= firstSeparator) {
+            throw new IllegalArgumentException("IPv6 separators detection fault. Second separator appers to be not after the first one!");
+        }
         return blockToLong(ip.substring(0, firstSeparator)) * VALUES_PER_BLOCK
             + blockToLong(ip.substring(firstSeparator + 1, secondSeparator));
     }
