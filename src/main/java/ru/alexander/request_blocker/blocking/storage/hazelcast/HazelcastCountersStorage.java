@@ -4,14 +4,11 @@ import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.HazelcastInstance;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Repository;
 import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
+import ru.alexander.request_blocker.blocking.storage.sharding.ShardingStrategy;
 
 import java.util.Map;
 
-@Repository
-@Primary
 @RequiredArgsConstructor
 class HazelcastCountersStorage implements CountersStorage {
     private final HazelcastInstance hazelcast;

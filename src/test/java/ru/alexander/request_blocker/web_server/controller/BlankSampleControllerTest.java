@@ -9,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.alexander.request_blocker.blocking.LimitIPConfiguration;
 import ru.alexander.request_blocker.util.IpAddressHelper;
 
 import javax.servlet.http.HttpServletResponse;
@@ -27,12 +29,14 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.MOCK;
 import static ru.alexander.request_blocker.util.HttpRequestsHelper.runHTTPRequests;
-import static ru.alexander.request_blocker.util.IpAddressHelper.randomIPAddress;
+import static ru.alexander.request_blocker.util.IpAddressHelper.randomIPv4Address;
+import static ru.alexander.request_blocker.util.IpAddressHelper.randomIPv6Address;
 
 @SpringBootTest(
     webEnvironment = MOCK
 )
-@ActiveProfiles("sample-controller-tests")
+@Import(LimitIPConfiguration.class)
+@ActiveProfiles({"sample-controller-tests", "storage-simple"})
 @AutoConfigureMockMvc
 class BlankSampleControllerTest {
     private static final String URI = "/sample_ip_protected";
@@ -60,15 +64,27 @@ class BlankSampleControllerTest {
     }
 
     @Test
-    @DisplayName("Same IP requests fail after limit")
+    @DisplayName("Same IP v4 requests fail after limit")
     @Timeout(value = TIME_LIMIT / 2)
-    void callWithSameIP() throws Exception {
-        val tasks = sameIpTasks(TOTAL_REQUESTS);
+    void callWithSameIPv4() throws Exception {
+        val tasks = sameIpv4Tasks(TOTAL_REQUESTS);
         // Execute requests
         val results = runHTTPRequests(pool, tasks);
         assertEquals(expectedSuccesses, results.getSuccessful());
         assertEquals(TOTAL_REQUESTS - expectedSuccesses, results.getFailed());
     }
+
+    @Test
+    @DisplayName("Same IP v6 requests fail after limit")
+    @Timeout(value = TIME_LIMIT / 2)
+    void callWithSameIPv6() throws Exception {
+        val tasks = sameIpv6Tasks(TOTAL_REQUESTS);
+        // Execute requests
+        val results = runHTTPRequests(pool, tasks);
+        assertEquals(expectedSuccesses, results.getSuccessful());
+        assertEquals(TOTAL_REQUESTS - expectedSuccesses, results.getFailed());
+    }
+
 
     @Test
     @DisplayName("Unique IP requests work fine")
@@ -81,12 +97,20 @@ class BlankSampleControllerTest {
         assertEquals(0, results.getFailed());
     }
 
-    public List<Callable<HttpServletResponse>> sameIpTasks(int n) {
-        val ip = randomIPAddress();
+    public List<Callable<HttpServletResponse>> sameIpv4Tasks(int n) {
+        val ip = randomIPv4Address();
         return generate(() -> new RandomIPRequestTask(mockMvc, URI, ip))
             .limit(n)
             .collect(toList());
     }
+
+    public List<Callable<HttpServletResponse>> sameIpv6Tasks(int n) {
+        val ip = randomIPv6Address();
+        return generate(() -> new RandomIPRequestTask(mockMvc, URI, ip))
+            .limit(n)
+            .collect(toList());
+    }
+
 
     public List<Callable<HttpServletResponse>> uniqueIpTasks(int n) {
         return generate(IpAddressHelper::randomIPAddress)
