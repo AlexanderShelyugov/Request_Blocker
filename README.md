@@ -8,11 +8,16 @@ Block incoming requests from the same IP address, if there are too many of them.
 ## Table of contents
 
 - [Design](#Design)
+    - [Explanation](#Explanation)
+    - [Important note!](#Important note!)
+    - [Achieved bullet points](#Achieved bullet points)
 - [Usage](#Usage)
 - [Build](#Build)
 - [Run](#Run)
 
 ## Design
+
+### Explanation
 
 Since we have a hypothetical high-load application we need to tune counters' read AND write operations.
 
@@ -37,6 +42,18 @@ Both [@Configuration](https://docs.spring.io/spring-framework/docs/current/javad
 and [@Component](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/stereotype/Component.html)
 bean creation mechanisms are present. This is done intentionally for
 demonstration purposes.
+
+### Achieved bullet points
+
+✔️ Limitations and shard sizes are configured in [these](src/main/resources/application.yml) properties.
+
+✔️ Can be added quickly, like
+in [this](src/main/java/ru/alexander/request_blocker/web_server/service/impl/SomeProtectedServiceImpl.java) class.
+
+✔️ Best practices are applied to make this functionality fast in high-load applications.
+
+✔️ [Unit test that calls endpoint from random IP addresses in parallel](src/test/java/ru/alexander/request_blocker/web_server/controller/BlankSampleControllerTest.java)
+is present.
 
 ## Usage
 
