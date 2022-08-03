@@ -29,12 +29,12 @@ The best known way to optimize write operations is **sharding**.
 
 There are two storage options to use:
 
-- with simple [HashMaps](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/HashMap.html) (faster,
+- [SimpleCountersStorage](src/main/java/ru/alexander/request_blocker/blocking/storage/simple/SimpleCountersStorage.java) with [HashMaps](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/HashMap.html) under the hood (faster,
   but drains this process' RAM)
-- with [Hazelcast](https://hazelcast.com) (slower, but RAM is used in a separate process + all Hazelcast configuration
-  options)
+- [HazelcastCountersStorage](src/main/java/ru/alexander/request_blocker/blocking/storage/hazelcast/HazelcastCountersStorage.java) with [Hazelcast](https://hazelcast.com) (slower, but RAM is used in a separate process + all Hazelcast
+  configuration [options](https://docs.hazelcast.com/imdg/4.2/configuration/configuring-programmatically))
 
-Default option is simple storage. You can use Hazelcast via `storage-hazelcast` Spring profile.
+The default option is [simple storage](src/main/java/ru/alexander/request_blocker/blocking/storage/simple/SimpleCountersStorage.java). You can use Hazelcast via `storage-hazelcast` Spring profile.
 
 ### Important note!
 
@@ -52,7 +52,8 @@ in [this](src/main/java/ru/alexander/request_blocker/web_server/service/impl/Som
 
 ✔️ Best practices are applied to make this functionality fast in high-load applications.
 
-✔️ The [unit test]((src/test/java/ru/alexander/request_blocker/web_server/controller/BlankSampleControllerTest.java)) that
+✔️ The [unit test]((src/test/java/ru/alexander/request_blocker/web_server/controller/BlankSampleControllerTest.java))
+that
 calls [endpoint](src/main/java/ru/alexander/request_blocker/web_server/controller/BlankSampleController.java) from
 random IP addresses in parallel is present.
 
