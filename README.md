@@ -13,7 +13,7 @@ Block incoming requests from the same IP address, if there are too many of them
 
 ## Usage
 
-Some endpoints have a limit of 3 requests from one IP address within 30 seconds.
+Protected endpoints have a limit of 3 requests from one IP address within 30 seconds.
 
 Available endpoints:
 
