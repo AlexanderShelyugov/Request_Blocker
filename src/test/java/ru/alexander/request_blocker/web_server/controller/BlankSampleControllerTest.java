@@ -40,7 +40,7 @@ import static ru.alexander.request_blocker.util.IpAddressHelper.randomIPv6Addres
 @AutoConfigureMockMvc
 class BlankSampleControllerTest {
     private static final String URI = "/sample_ip_protected";
-    private static final int REQUESTS_AT_ONCE = 1000;
+    private static final int REQUESTS_AT_ONCE = 2500;
     private static final int TOTAL_REQUESTS = REQUESTS_AT_ONCE * 20;
     private static final int TIME_LIMIT_SECONDS = 30;
 
@@ -109,7 +109,6 @@ class BlankSampleControllerTest {
             .limit(n)
             .collect(toList());
     }
-
 
     public List<Callable<HttpServletResponse>> uniqueIpTasks(int n) {
         return generate(IpAddressHelper::randomIPAddress)
