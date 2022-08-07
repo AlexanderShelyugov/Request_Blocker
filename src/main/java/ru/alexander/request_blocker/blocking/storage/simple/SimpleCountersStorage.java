@@ -12,7 +12,7 @@ import java.util.Map;
  * Counter storage that works with plain java code.
  */
 class SimpleCountersStorage extends AbstractShardingCounterStorage {
-    private final Map<Integer, Map<String, Map<String, Integer>>> storageMap = new HashMap<>();
+    private final Map<String, Map<String, Integer>> shardsByName = new HashMap<>();
 
     public SimpleCountersStorage(ShardingStrategy shardingStrategy) {
         super(shardingStrategy);
@@ -20,15 +20,14 @@ class SimpleCountersStorage extends AbstractShardingCounterStorage {
 
     @Override
     protected Map<String, Integer> getRelatedShard(int executionID, String ip) {
-        val countersForExecution = storageMap.computeIfAbsent(executionID, id -> new HashMap<>());
         val shardName = getShardingStrategy().getShardName(executionID, ip);
-        return countersForExecution.computeIfAbsent(shardName, shard -> new HashMap<>());
+        return shardsByName.computeIfAbsent(shardName, shard -> new HashMap<>());
     }
 
     @Override
     public void removeAllCounters() {
         // No need to drop already aligned hash table for executions
-        val executions = new HashSet<>(storageMap.keySet());
-        executions.forEach(execution -> storageMap.put(execution, new HashMap<>()));
+        val executions = new HashSet<>(shardsByName.keySet());
+        executions.forEach(execution -> shardsByName.put(execution, new HashMap<>()));
     }
 }

@@ -1,7 +1,6 @@
 package ru.alexander.request_blocker.blocking.storage.api.locks;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Synchronized;
 import lombok.val;
 import ru.alexander.request_blocker.blocking.storage.sharding.strategy.ShardingStrategy;
 
@@ -57,9 +56,12 @@ public class ShardStorageLock implements ShardLock, StorageLock {
         }
     }
 
-    @Synchronized
+    private final Object synchronization = new Object();
+
     private Lock getShardLock(int executionID, String ip) {
-        val shardName = shardingStrategy.getShardName(executionID, ip);
-        return shardLocks.computeIfAbsent(shardName, shard -> new ReentrantLock());
+        synchronized (synchronization) {
+            val shardName = shardingStrategy.getShardName(executionID, ip);
+            return shardLocks.computeIfAbsent(shardName, shard -> new ReentrantLock());
+        }
     }
 }
