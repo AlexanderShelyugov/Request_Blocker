@@ -1,10 +1,7 @@
 package ru.alexander.request_blocker.web_server.controller;
 
 import lombok.val;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,11 +14,15 @@ import ru.alexander.request_blocker.blocking.LimitIPConfiguration;
 import ru.alexander.request_blocker.util.IpAddressHelper;
 
 import javax.servlet.http.HttpServletResponse;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.generate;
@@ -38,11 +39,14 @@ import static ru.alexander.request_blocker.util.HttpRequestsHelper.runHTTPReques
 @AutoConfigureMockMvc
 class BlankSampleControllerTest {
     private static final String URI = "/sample_ip_protected";
-    private static final int REQUESTS_AT_ONCE = 2800;
-    private static final int TOTAL_REQUESTS = REQUESTS_AT_ONCE * 20;
-    private static final int TIME_LIMIT_SECONDS = 30;
+    // We can't create too many threads because of OS limitations.
+    private static final int REQUESTS_AT_ONCE = 1000;
+    // We can't create too many random IP either. Especially, IPv6.
+    // That may create out of memory error.
+    private static final int TOTAL_REQUESTS = REQUESTS_AT_ONCE * 30;
+    private static final int TIME_LIMIT_SECONDS = 15;
 
-    private static final String RESOURCE_LOCK_NAME = "pool";
+    private static final String RESOURCE_LOCK_NAME = "requests-thread-pool";
 
     @Value("${block_ip.requests.limit}")
     private int expectedSuccesses;
@@ -50,11 +54,21 @@ class BlankSampleControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private ExecutorService pool;
+    private static ExecutorService pool;
 
-    @BeforeEach
-    void setUp() {
+    @BeforeAll
+    static void setUp() {
         pool = newFixedThreadPool(REQUESTS_AT_ONCE);
+    }
+
+    @AfterAll
+    static void stop() {
+        pool.shutdown();
+    }
+
+    @AfterEach
+    void tearDown() {
+        System.gc();
     }
 
     @Test
@@ -63,10 +77,8 @@ class BlankSampleControllerTest {
         assertThat(mockMvc, is(notNullValue()));
     }
 
-    @Test
-    @Timeout(value = TIME_LIMIT_SECONDS)
+    @IPLimitTest
     @DisplayName("Same IP v4 requests fail after limit")
-    @ResourceLock(RESOURCE_LOCK_NAME)
     void callWithSameIPv4() throws Exception {
         val tasks = sameIpv4Tasks(TOTAL_REQUESTS);
         // Execute requests
@@ -75,10 +87,8 @@ class BlankSampleControllerTest {
         assertEquals(TOTAL_REQUESTS - expectedSuccesses, results.getFailed());
     }
 
-    @Test
-    @Timeout(value = TIME_LIMIT_SECONDS)
+    @IPLimitTest
     @DisplayName("Same IP v6 requests fail after limit")
-    @ResourceLock(RESOURCE_LOCK_NAME)
     void callWithSameIPv6() throws Exception {
         val tasks = sameIpv6Tasks(TOTAL_REQUESTS);
         // Execute requests
@@ -87,12 +97,30 @@ class BlankSampleControllerTest {
         assertEquals(TOTAL_REQUESTS - expectedSuccesses, results.getFailed());
     }
 
-    @Test
-    @Timeout(value = TIME_LIMIT_SECONDS)
+    @IPLimitTest
     @DisplayName("Unique IP requests work fine")
-    @ResourceLock(RESOURCE_LOCK_NAME)
     void callWithUniqueIPs() throws Exception {
         val tasks = uniqueRandomIPTasks(TOTAL_REQUESTS);
+        // Execute requests
+        val results = runHTTPRequests(pool, tasks);
+        assertEquals(TOTAL_REQUESTS, results.getSuccessful());
+        assertEquals(0, results.getFailed());
+    }
+
+    @IPLimitTest
+    @DisplayName("Unique IPv4 requests work fine")
+    void callWithUniqueIPv4s() throws Exception {
+        val tasks = uniqueIPTasks(TOTAL_REQUESTS, IpAddressHelper::randomIPv4Address);
+        // Execute requests
+        val results = runHTTPRequests(pool, tasks);
+        assertEquals(TOTAL_REQUESTS, results.getSuccessful());
+        assertEquals(0, results.getFailed());
+    }
+
+    @IPLimitTest
+    @DisplayName("Unique IPv6 requests work fine")
+    void callWithUniqueIPv6s() throws Exception {
+        val tasks = uniqueIPTasks(TOTAL_REQUESTS, IpAddressHelper::randomIPv6Address);
         // Execute requests
         val results = runHTTPRequests(pool, tasks);
         assertEquals(TOTAL_REQUESTS, results.getSuccessful());
@@ -125,4 +153,16 @@ class BlankSampleControllerTest {
                    .map(ip -> new IPRequestTask(mockMvc, URI, ip))
                    .collect(toList());
     }
+
+    /**
+     * The shortcut for the common annotations set
+     */
+    @Target(METHOD)
+    @Retention(RUNTIME)
+    @Test
+    @Timeout(value = TIME_LIMIT_SECONDS)
+    @ResourceLock(RESOURCE_LOCK_NAME)
+    @interface IPLimitTest {
+    }
+
 }
