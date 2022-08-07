@@ -4,7 +4,7 @@ block_ip:
     time_window_seconds: 30
   shards:
     ipv4: 100
-    ipv6: 10000
+    ipv6: 2000
 server:
   port: ${PORT:8080}
 management:
