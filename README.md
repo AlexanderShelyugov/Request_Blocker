@@ -25,7 +25,7 @@ Since reads and writes are 1-1 for counters, we should focus on writes.
 
 The best known way to optimize write operations is **sharding**.
 
-💡 Therefore, we use organized shards!
+💡 Therefore, we use organized shards! We will organize shards with [consistent hashing](https://en.wikipedia.org/wiki/Consistent_hashing).
 
 There are two storage options to use:
 
