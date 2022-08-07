@@ -2,11 +2,7 @@ package ru.alexander.request_blocker.blocking.storage.sharding.strategy;
 
 import lombok.val;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static java.lang.Long.min;
-import static java.util.Collections.unmodifiableMap;
 import static java.util.Optional.of;
 
 /**
@@ -20,27 +16,27 @@ import static java.util.Optional.of;
  * <p>
  * Note. We DO pay attention to compressed forms of IP Address.
  */
-public class IPv6ShardingStrategy implements ShardingStrategy {
+public class IPv6ConsistentHashingShardingStrategy implements ShardingStrategy {
     private static final long IPV6_DEFAULT_SHARDS_COUNT = 1000;
     private static final long VALUES_PER_BLOCK = 65536L;
     // We take into account first two numbers of IP address
     private static final long MAX_ITEMS_COUNT = VALUES_PER_BLOCK * VALUES_PER_BLOCK;
 
     // Execution ID - Range name
-    private static final String SHARD_NAME_FORMAT = "%d-%s";
+    private static final String SHARD_NAME_FORMAT = "%d-v6-%s";
 
     /**
      * Symbol, that divides addresses' blocks
      */
     private static final String SEPARATOR = ":";
 
-    private final Map<Long, String> shardRanges;
+    private final long[] shardRanges;
 
-    public IPv6ShardingStrategy() {
+    public IPv6ConsistentHashingShardingStrategy() {
         this(IPV6_DEFAULT_SHARDS_COUNT);
     }
 
-    public IPv6ShardingStrategy(long shardsCount) {
+    public IPv6ConsistentHashingShardingStrategy(long shardsCount) {
         shardsCount = min(shardsCount, Integer.MAX_VALUE);
         if (shardsCount < 0) throw new IllegalArgumentException("Can't have a negative shard count");
         if (shardsCount == 0) shardsCount = IPV6_DEFAULT_SHARDS_COUNT;
@@ -55,27 +51,28 @@ public class IPv6ShardingStrategy implements ShardingStrategy {
         // When we've figured the range, we know the shard's name!
 
         val ipToken = ipToSpectrumPosition(ipv6);
-        final String rangeName = shardRanges.entrySet().stream()
-            .filter(range -> ipToken <= range.getKey())
-            .map(Map.Entry::getValue)
-            .findFirst()
-            .orElseThrow(IllegalStateException::new);
-        return String.format(SHARD_NAME_FORMAT, executionID, rangeName);
+        int ipRangeNumber = 0;
+        while (ipRangeNumber < shardRanges.length - 1) {
+            if (ipToken <= shardRanges[ipRangeNumber]) {
+                break;
+            }
+            ipRangeNumber++;
+        }
+        return String.format(SHARD_NAME_FORMAT, executionID, ipRangeNumber);
     }
 
-    private static Map<Long, String> createIPv6ShardRanges(int shardCount) {
-        val result = new HashMap<Long, String>(shardCount);
-
+    private long[] createIPv6ShardRanges(int shardCount) {
         var itemsPerShard = MAX_ITEMS_COUNT / shardCount;
-        var ipStep = 0L;
-        var shardNum = 0L;
-        do {
-            ipStep = min(ipStep + itemsPerShard, MAX_ITEMS_COUNT);
-            result.put(ipStep, "v6_" + shardNum);
-            shardNum++;
-        } while (MAX_ITEMS_COUNT != ipStep);
-
-        return unmodifiableMap(result);
+        long shardRangeTop = 0;
+        val shards = new long[shardCount];
+        for (int shardNum = 0; shardNum < shardCount; shardNum++) {
+            shardRangeTop += itemsPerShard;
+            shards[shardNum] = shardRangeTop;
+        }
+        // Since integers don't always evenly divide
+        // We need to compensate the error
+        shards[shards.length - 1] = MAX_ITEMS_COUNT;
+        return shards;
     }
 
     private static long ipToSpectrumPosition(String ip) {

@@ -2,11 +2,6 @@ package ru.alexander.request_blocker.blocking.storage.sharding.strategy;
 
 import lombok.val;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static java.lang.Math.min;
-import static java.util.Collections.unmodifiableMap;
 import static java.util.Optional.of;
 import static java.util.function.Predicate.not;
 
@@ -19,21 +14,21 @@ import static java.util.function.Predicate.not;
  * <p>
  * Incoming IP address is located in some range - that will be our shard.
  */
-public class IPv4ShardingStrategy implements ShardingStrategy {
+public class IPv4ConsistentHashingShardingStrategy implements ShardingStrategy {
     private static final int IPV4_DEFAULT_SHARDS_COUNT = 100;
     private static final int VALUES_PER_BLOCK = 256;
     // We take into account only first two blocks of IP address
     private static final int MAX_ITEMS_COUNT = VALUES_PER_BLOCK * VALUES_PER_BLOCK;
-    private static final String SHARD_NAME_FORMAT = "%d-%s";
+    private static final String SHARD_NAME_FORMAT = "%d-v4-%d";
     private static final String SEPARATOR = ".";
 
-    private final Map<Integer, String> shardRanges;
+    private final int[] shardRanges;
 
-    public IPv4ShardingStrategy() {
+    public IPv4ConsistentHashingShardingStrategy() {
         this(IPV4_DEFAULT_SHARDS_COUNT);
     }
 
-    public IPv4ShardingStrategy(int shardsCount) {
+    public IPv4ConsistentHashingShardingStrategy(int shardsCount) {
         if (shardsCount < 0) throw new IllegalArgumentException("Can't have a negative shard count");
         if (shardsCount == 0) shardsCount = IPV4_DEFAULT_SHARDS_COUNT;
         shardRanges = createIPv4ShardRanges(shardsCount);
@@ -46,27 +41,28 @@ public class IPv4ShardingStrategy implements ShardingStrategy {
         // After we know position, we look which range this position fits to.
         // When we've figured the range, we know the shard's name.
         val ipToken = ipToSpectrumPosition(ipv4);
-        final String ipRangeName = shardRanges.entrySet().stream()
-            .filter(range -> ipToken <= range.getKey())
-            .map(Map.Entry::getValue)
-            .findFirst()
-            .orElseThrow(IllegalStateException::new);
-        return String.format(SHARD_NAME_FORMAT, executionID, ipRangeName);
+        int ipRangeNumber = 0;
+        while (ipRangeNumber < shardRanges.length - 1) {
+            if (ipToken <= shardRanges[ipRangeNumber]) {
+                break;
+            }
+            ipRangeNumber++;
+        }
+        return String.format(SHARD_NAME_FORMAT, executionID, ipRangeNumber);
     }
 
-    private Map<Integer, String> createIPv4ShardRanges(int shardCount) {
-        val result = new HashMap<Integer, String>(shardCount);
-
+    private int[] createIPv4ShardRanges(int shardCount) {
         var itemsPerShard = MAX_ITEMS_COUNT / shardCount;
-        var ipStep = 0;
-        var shardNum = 0;
-        do {
-            ipStep = min(ipStep + itemsPerShard, MAX_ITEMS_COUNT);
-            result.put(ipStep, "v4_" + shardNum);
-            shardNum++;
-        } while (MAX_ITEMS_COUNT != ipStep);
-
-        return unmodifiableMap(result);
+        int shardRangeTop = 0;
+        val shards = new int[shardCount];
+        for (int shardNum = 0; shardNum < shardCount; shardNum++) {
+            shardRangeTop += itemsPerShard;
+            shards[shardNum] = shardRangeTop;
+        }
+        // Since integers don't always evenly divide
+        // We need to compensate the error
+        shards[shards.length - 1] = MAX_ITEMS_COUNT;
+        return shards;
     }
 
     private static int ipToSpectrumPosition(String ip) {

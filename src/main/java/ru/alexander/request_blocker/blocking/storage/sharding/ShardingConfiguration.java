@@ -8,8 +8,8 @@ import ru.alexander.request_blocker.blocking.storage.api.CommonCounterStorageOpe
 import ru.alexander.request_blocker.blocking.storage.api.CountersStorage;
 import ru.alexander.request_blocker.blocking.storage.api.locks.ShardStorageLock;
 import ru.alexander.request_blocker.blocking.storage.sharding.strategy.IPTypesShardingStrategy;
-import ru.alexander.request_blocker.blocking.storage.sharding.strategy.IPv4ShardingStrategy;
-import ru.alexander.request_blocker.blocking.storage.sharding.strategy.IPv6ShardingStrategy;
+import ru.alexander.request_blocker.blocking.storage.sharding.strategy.IPv4ConsistentHashingShardingStrategy;
+import ru.alexander.request_blocker.blocking.storage.sharding.strategy.IPv6ConsistentHashingShardingStrategy;
 import ru.alexander.request_blocker.blocking.storage.sharding.strategy.ShardingStrategy;
 
 @Configuration
@@ -25,8 +25,8 @@ public class ShardingConfiguration {
 
     @Bean
     public ShardingStrategy getIPShardingStrategy() {
-        val ipv4Strategy = new IPv4ShardingStrategy(ipv4ShardsCount);
-        val ipv6Strategy = new IPv6ShardingStrategy(ipv6ShardsCount);
+        val ipv4Strategy = new IPv4ConsistentHashingShardingStrategy(ipv4ShardsCount);
+        val ipv6Strategy = new IPv6ConsistentHashingShardingStrategy(ipv6ShardsCount);
 
         return IPTypesShardingStrategy.builder()
             .ipv4ShardingStrategy(ipv4Strategy)
