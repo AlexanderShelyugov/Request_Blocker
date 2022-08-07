@@ -41,14 +41,28 @@ public class IPv4ConsistentHashingShardingStrategy implements ShardingStrategy {
         // After we know position, we look which range this position fits to.
         // When we've figured the range, we know the shard's name.
         val ipToken = ipToSpectrumPosition(ipv4);
-        int ipRangeNumber = 0;
-        while (ipRangeNumber < shardRanges.length - 1) {
-            if (ipToken <= shardRanges[ipRangeNumber]) {
+        var left = 0;
+        var right = shardRanges.length - 1;
+        int currentRange;
+        var rangeNumber = 0;
+        do {
+            rangeNumber = (left + right) / 2;
+            currentRange = shardRanges[rangeNumber];
+
+            if (
+                // We match current range, but previous range is less than our token
+                (rangeNumber == 0 || shardRanges[rangeNumber - 1] < ipToken)
+                    && ipToken <= currentRange
+                    || left == right
+            ) {
                 break;
+            } else if (currentRange < ipToken) {
+                left = rangeNumber + 1;
+            } else { // ipToken <= currentRange
+                right = rangeNumber;
             }
-            ipRangeNumber++;
-        }
-        return String.format(SHARD_NAME_FORMAT, executionID, ipRangeNumber);
+        } while (left <= right);
+        return String.format(SHARD_NAME_FORMAT, executionID, rangeNumber);
     }
 
     private int[] createIPv4ShardRanges(int shardCount) {
@@ -75,15 +89,15 @@ public class IPv4ConsistentHashingShardingStrategy implements ShardingStrategy {
             throw new IllegalArgumentException("IPv4 separators detection fault. Second separator appers to be not after the first one!");
         }
         return blockToInt(ip.substring(0, firstSeparator)) * VALUES_PER_BLOCK
-            + blockToInt(ip.substring(firstSeparator + 1, secondSeparator));
+                   + blockToInt(ip.substring(firstSeparator + 1, secondSeparator));
     }
 
     private static int blockToInt(String block) {
         return of(block)
-            .map(String::trim)
-            .filter(not(String::isEmpty))
-            .map(Integer::parseInt)
-            .orElseThrow(() -> new IllegalArgumentException(
-                "Failed to parse IP block. It appears to have separators close to each other."));
+                   .map(String::trim)
+                   .filter(not(String::isEmpty))
+                   .map(Integer::parseInt)
+                   .orElseThrow(() -> new IllegalArgumentException(
+                       "Failed to parse IP block. It appears to have separators close to each other."));
     }
 }

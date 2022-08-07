@@ -17,10 +17,10 @@ public class ShardingConfiguration {
     @Value("${block_ip.requests.limit:10}")
     private int requestLimit;
 
-    @Value("${block_ip.shards.ipv4:0}")
+    @Value("${block_ip.shards.ipv4:100}")
     private int ipv4ShardsCount;
 
-    @Value("${block_ip.shards.ipv6:0}")
+    @Value("${block_ip.shards.ipv6:1000}")
     private int ipv6ShardsCount;
 
     @Bean

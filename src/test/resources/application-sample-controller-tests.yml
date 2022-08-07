@@ -2,3 +2,6 @@ block_ip:
   requests:
     limit: 500
     time_window_seconds: 99999
+  shards:
+    ipv4: 1000
+    ipv6: 10000

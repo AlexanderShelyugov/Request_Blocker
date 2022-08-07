@@ -7,12 +7,13 @@ import ru.alexander.request_blocker.blocking.storage.sharding.strategy.ShardingS
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Counter storage that works with plain java code.
  */
 class SimpleCountersStorage extends AbstractShardingCounterStorage {
-    private final Map<String, Map<String, Integer>> shardsByName = new HashMap<>();
+    private final Map<String, Map<String, Integer>> shardsByName = new ConcurrentHashMap<>();
 
     public SimpleCountersStorage(ShardingStrategy shardingStrategy) {
         super(shardingStrategy);
