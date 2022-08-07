@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.parallel.ResourceLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -41,6 +42,8 @@ class BlankSampleControllerTest {
     private static final int TOTAL_REQUESTS = REQUESTS_AT_ONCE * 20;
     private static final int TIME_LIMIT_SECONDS = 30;
 
+    private static final String RESOURCE_LOCK_NAME = "pool";
+
     @Value("${block_ip.requests.limit}")
     private int expectedSuccesses;
 
@@ -63,6 +66,7 @@ class BlankSampleControllerTest {
     @Test
     @Timeout(value = TIME_LIMIT_SECONDS)
     @DisplayName("Same IP v4 requests fail after limit")
+    @ResourceLock(RESOURCE_LOCK_NAME)
     void callWithSameIPv4() throws Exception {
         val tasks = sameIpv4Tasks(TOTAL_REQUESTS);
         // Execute requests
@@ -74,6 +78,7 @@ class BlankSampleControllerTest {
     @Test
     @Timeout(value = TIME_LIMIT_SECONDS)
     @DisplayName("Same IP v6 requests fail after limit")
+    @ResourceLock(RESOURCE_LOCK_NAME)
     void callWithSameIPv6() throws Exception {
         val tasks = sameIpv6Tasks(TOTAL_REQUESTS);
         // Execute requests
@@ -85,6 +90,7 @@ class BlankSampleControllerTest {
     @Test
     @Timeout(value = TIME_LIMIT_SECONDS)
     @DisplayName("Unique IP requests work fine")
+    @ResourceLock(RESOURCE_LOCK_NAME)
     void callWithUniqueIPs() throws Exception {
         val tasks = uniqueRandomIPTasks(TOTAL_REQUESTS);
         // Execute requests
