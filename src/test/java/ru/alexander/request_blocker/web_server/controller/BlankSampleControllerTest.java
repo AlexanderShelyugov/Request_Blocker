@@ -1,7 +1,10 @@
 package ru.alexander.request_blocker.web_server.controller;
 
 import lombok.val;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,16 +16,11 @@ import ru.alexander.request_blocker.blocking.LimitIPConfiguration;
 import ru.alexander.request_blocker.util.IpAddressHelper;
 
 import javax.servlet.http.HttpServletResponse;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
-import static java.lang.System.gc;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.generate;
@@ -56,18 +54,14 @@ class BlankSampleControllerTest {
         pool = newFixedThreadPool(REQUESTS_AT_ONCE);
     }
 
-    @AfterEach
-    void tearDown() {
-        gc();
-    }
-
     @Test
     @DisplayName("Context loads successfully!")
     void contextLoads() {
         assertThat(mockMvc, is(notNullValue()));
     }
 
-    @IPLimitTest
+    @Test
+    @Timeout(value = TIME_LIMIT_SECONDS)
     @DisplayName("Same IP v4 requests fail after limit")
     void callWithSameIPv4() throws Exception {
         val tasks = sameIpv4Tasks(TOTAL_REQUESTS);
@@ -77,7 +71,8 @@ class BlankSampleControllerTest {
         assertEquals(TOTAL_REQUESTS - expectedSuccesses, results.getFailed());
     }
 
-    @IPLimitTest
+    @Test
+    @Timeout(value = TIME_LIMIT_SECONDS)
     @DisplayName("Same IP v6 requests fail after limit")
     void callWithSameIPv6() throws Exception {
         val tasks = sameIpv6Tasks(TOTAL_REQUESTS);
@@ -87,30 +82,11 @@ class BlankSampleControllerTest {
         assertEquals(TOTAL_REQUESTS - expectedSuccesses, results.getFailed());
     }
 
-    @IPLimitTest
+    @Test
+    @Timeout(value = TIME_LIMIT_SECONDS)
     @DisplayName("Unique IP requests work fine")
     void callWithUniqueIPs() throws Exception {
         val tasks = uniqueRandomIPTasks(TOTAL_REQUESTS);
-        // Execute requests
-        val results = runHTTPRequests(pool, tasks);
-        assertEquals(TOTAL_REQUESTS, results.getSuccessful());
-        assertEquals(0, results.getFailed());
-    }
-
-    @IPLimitTest
-    @DisplayName("Unique IPv4 requests work fine")
-    void callWithUniqueIPv4s() throws Exception {
-        val tasks = uniqueIPTasks(TOTAL_REQUESTS, IpAddressHelper::randomIPv4Address);
-        // Execute requests
-        val results = runHTTPRequests(pool, tasks);
-        assertEquals(TOTAL_REQUESTS, results.getSuccessful());
-        assertEquals(0, results.getFailed());
-    }
-
-    @IPLimitTest
-    @DisplayName("Unique IPv6 requests work fine")
-    void callWithUniqueIPv6s() throws Exception {
-        val tasks = uniqueIPTasks(TOTAL_REQUESTS, IpAddressHelper::randomIPv6Address);
         // Execute requests
         val results = runHTTPRequests(pool, tasks);
         assertEquals(TOTAL_REQUESTS, results.getSuccessful());
@@ -143,16 +119,4 @@ class BlankSampleControllerTest {
                    .map(ip -> new IPRequestTask(mockMvc, URI, ip))
                    .collect(toList());
     }
-
-    /**
-     * The shortcut for the common annotations set
-     */
-    @Target(METHOD)
-    @Retention(RUNTIME)
-    @Test
-    @Timeout(value = TIME_LIMIT_SECONDS)
-//    @ResourceLock(RESOURCE_LOCK_NAME)
-    @interface IPLimitTest {
-    }
-
 }
