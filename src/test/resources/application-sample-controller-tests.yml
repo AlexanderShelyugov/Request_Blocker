@@ -4,4 +4,4 @@ block_ip:
     time_window_seconds: 99999
   shards:
     ipv4: 100
-    ipv6: 2000
+    ipv6: 1000
